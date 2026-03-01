@@ -1,24 +1,34 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Users, Calendar, Sparkles, Heart } from 'lucide-react';
-import LocationMap from '../../../shared/components/LocationMap';
-import { IInvitation } from '../../../core/types/invitation';
+import { MapPin, Users, Calendar, Sparkles, Heart, Clock } from 'lucide-react';
+import { IInvitation, IEvent } from '../../../core/types/invitation';
 
 interface InvitationCardProps {
     data: IInvitation;
+    eventData?: IEvent;
 }
 
 /**
  * InvitationCard Component
+ * Pure presentation component to display invitation details.
  */
-const InvitationCard: React.FC<InvitationCardProps> = ({ data }) => {
+const InvitationCard: React.FC<InvitationCardProps> = ({ data, eventData }) => {
+    // Fallback to defaults if eventData is not provided
+    const displayTitle = eventData?.title || 'Mis Quince Años';
+    const displaySubtitle = eventData?.subtitle || 'Natalia Castillo';
+    const displayDate = eventData?.date || 'Sábado, 24 Mayo';
+    const displayTime = eventData ? `${eventData.startTime} - ${eventData.endTime}` : '19:00 - 02:00';
+    const displayVenue = eventData?.venue || 'Salón de Fiestas';
+    const displayLocation = eventData?.location || 'Ubicación del evento';
+    const displayMapsUrl = eventData?.googleMapsUrl;
+
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
             className="glass-card invitation-card"
-            style={{ border: '2px solid rgba(212, 163, 115, 0.3)' }}
+            style={{ border: '2px solid rgba(212, 163, 115, 0.3)', width: '100%', maxWidth: '500px', margin: '0 auto' }}
         >
             <div className="card-header" style={{ textAlign: 'center', marginBottom: '2rem' }}>
                 <motion.div
@@ -40,7 +50,7 @@ const InvitationCard: React.FC<InvitationCardProps> = ({ data }) => {
                     fontSize: '1.2rem',
                     margin: '0.5rem 0 0'
                 }}>
-                    Mis Quince Años
+                    {displayTitle}
                 </h3>
 
                 <h2 style={{
@@ -51,7 +61,7 @@ const InvitationCard: React.FC<InvitationCardProps> = ({ data }) => {
                     WebkitTextFillColor: 'transparent',
                     lineHeight: '1.2'
                 }}>
-                    {data.recipient || 'Nombre de la Quinceañera'}
+                    {displaySubtitle}
                 </h2>
 
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
@@ -92,17 +102,24 @@ const InvitationCard: React.FC<InvitationCardProps> = ({ data }) => {
                         </div>
                         <div style={{ textAlign: 'center' }}>
                             <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Fecha</p>
-                            <p style={{ fontWeight: '600', fontSize: '1.1rem' }}>Sábado, 24 Mayo</p>
+                            <p style={{ fontWeight: '600', fontSize: '1.1rem' }}>{displayDate}</p>
                         </div>
                     </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.03)', padding: '0.8rem', borderRadius: '16px' }}>
+                    <Clock size={18} color="#d4a373" />
+                    <span style={{ fontWeight: '600' }}>{displayTime}</span>
                 </div>
 
                 <div className="map-section">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.8rem', justifyContent: 'center' }}>
                         <MapPin size={18} color="#d4a373" />
-                        <span style={{ fontSize: '0.9rem', fontWeight: '600', letterSpacing: '0.5px', color: 'var(--secondary)' }}>LA CELEBRACIÓN SERÁ EN</span>
+                        <div style={{ textAlign: 'center' }}>
+                            <a href='https://maps.app.goo.gl/2Pc19MZTCYRH9Coi9'><p style={{ fontSize: '0.9rem', fontWeight: '600', letterSpacing: '0.5px', color: 'var(--secondary)' }}>{displayVenue}</p></a>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{displayLocation}</p>
+                        </div>
                     </div>
-                    <LocationMap position={data.location} readOnly={true} />
                 </div>
             </div>
 

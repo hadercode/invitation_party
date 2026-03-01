@@ -21,3 +21,14 @@ export interface IGenerationResult {
     success: boolean;
     code?: string;
 }
+
+export interface IEvent {
+    title: string;
+    subtitle: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    venue: string;
+    location: string;
+    googleMapsUrl: string;
+}

@@ -5,13 +5,17 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, Share2 } from 'lucide-react';
 import InvitationCard from '../components/InvitationCard';
 import { useInvitation } from '../hooks/useInvitation';
+import { useEvent } from '../../event/hooks/useEvent';
 
 /**
  * InvitationDetailPage
  */
 const InvitationDetailPage: React.FC = () => {
     const { code } = useParams<{ code: string }>();
-    const { data, loading, error } = useInvitation(code || null);
+    const { data: inviteData, loading: inviteLoading, error: inviteError } = useInvitation(code || null);
+    const { eventData, loading: eventLoading } = useEvent();
+
+    const loading = inviteLoading || eventLoading;
 
     if (loading) return (
         <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
@@ -19,9 +23,9 @@ const InvitationDetailPage: React.FC = () => {
         </div>
     );
 
-    if (error) return (
+    if (inviteError) return (
         <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexDirection: 'column', gap: '1rem' }}>
-            <p>{error}</p>
+            <p>{inviteError}</p>
             <Link to="/access" className="btn-primary">Volver a intentar</Link>
         </div>
     );
@@ -37,7 +41,7 @@ const InvitationDetailPage: React.FC = () => {
                 </button>
             </div>
 
-            <InvitationCard data={data} />
+            <InvitationCard data={inviteData} eventData={eventData} />
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -49,7 +53,7 @@ const InvitationDetailPage: React.FC = () => {
                 <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Código de Verificación QR</h3>
                 <div style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', display: 'inline-block', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
                     <QRCodeSVG
-                        value={`VERIFY:${code}:${data.recipient}`}
+                        value={`VERIFY:${code}:${inviteData.recipient}`}
                         size={180}
                         level={"H"}
                         includeMargin={false}

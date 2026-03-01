@@ -1,5 +1,4 @@
 import React, { ChangeEvent } from 'react';
-import LocationMap from '../../../shared/components/LocationMap';
 import { User, Ticket, MapPin } from 'lucide-react';
 import { IInvitation } from '../../../core/types/invitation';
 import { LatLng } from 'leaflet';
@@ -65,7 +64,7 @@ const InvitationForm: React.FC<InvitationFormProps> = ({ data, onUpdate, onGener
                 <label>
                     <MapPin size={14} style={{ marginRight: '4px' }} /> Ubicación (Haz clic en el mapa)
                 </label>
-                <LocationMap position={data.location} setPosition={handleLocationChange} readOnly={isLoading} />
+
             </div>
 
             <button
