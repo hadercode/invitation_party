@@ -1,46 +1,103 @@
+import { supabase } from '../../../core/database/connection';
 import { IEvent } from '../../../core/types/invitation';
-
-const STORAGE_KEY = 'event_config_data';
 
 /**
  * Event Service
- * Manages event details persistence using localStorage for demonstration.
+ * Logic isolation for database operations with Supabase.
  */
 export const eventService = {
     /**
      * Fetches the current event configuration.
+     * Note: In this simple app, we fetch the first record or a default one.
      */
-    getEventConfig: async (): Promise<IEvent> => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) {
-                    resolve(JSON.parse(stored));
-                } else {
-                    // Default data
-                    resolve({
-                        title: 'Mis Quince Años',
-                        date: '2026-05-24',
-                        startTime: '19:00',
-                        endTime: '02:00',
-                        venue: 'SALON DE FIESTA LA CHINITA',
-                        location: 'Maracaibo, Venezuela',
-                        googleMapsUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3920.908026723244!2d-71.64487932410631!3d10.664246789477836!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e8999b3ad664317%3A0x23530b5962ac4c97!2sSALON%20DE%20FIESTA%20LA%20CHINITA!5e0!3m2!1ses!2sve!4v1772332016270!5m2!1ses!2sve'
-                    });
-                }
-            }, 300);
-        });
+    getEventConfig: async (): Promise<IEvent | null> => {
+        const { data, error } = await supabase
+            .from('events')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (error) {
+            console.error('Error fetching event:', error.message);
+            return null;
+        }
+
+        return {
+            id: data.id,
+            title: data.title,
+            subtitle: data.subtitle || '',
+            date: data.event_date,
+            startTime: data.start_time,
+            endTime: data.end_time,
+            venue: data.venue_name,
+            location: data.city_location,
+            googleMapsUrl: data.google_maps_url || ''
+        };
     },
 
     /**
-     * Saves the event configuration.
+     * Saves or updates the event configuration.
      */
-    saveEventConfig: async (data: IEvent): Promise<{ success: boolean }> => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                resolve({ success: true });
-            }, 500);
-        });
-    }
+    saveEventConfig: async (event: IEvent): Promise<{ success: boolean; data?: any; error?: string }> => {
+        const payload = {
+            title: event.title,
+            subtitle: event.subtitle,
+            event_date: event.date,
+            start_time: event.startTime,
+            end_time: event.endTime,
+            venue_name: event.venue,
+            city_location: event.location,
+            google_maps_url: event.googleMapsUrl,
+            updated_at: new Date().toISOString()
+        };
+
+        // For simplicity, we search for an existing one to update or insert
+        const { data: existing } = await supabase.from('events').select('id').limit(1).single();
+
+        let result;
+        if (existing) {
+            result = await supabase
+                .from('events')
+                .update(payload)
+                .eq('id', existing.id);
+        } else {
+            result = await supabase
+                .from('events')
+                .insert([payload]);
+        }
+
+        if (result.error) {
+            return { success: false, error: result.error.message };
+        }
+
+        return { success: true, data: result.data };
+    },
+
+    /**
+     * Fetches all registered events.
+     */
+    getAllEvents: async (): Promise<IEvent[]> => {
+        const { data, error } = await supabase
+            .from('events')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching events:', error.message);
+            return [];
+        }
+
+        return data.map(item => ({
+            id: item.id,
+            title: item.title,
+            subtitle: item.subtitle || '',
+            date: item.event_date,
+            startTime: item.start_time,
+            endTime: item.end_time,
+            venue: item.venue_name,
+            location: item.city_location,
+            googleMapsUrl: item.google_maps_url || ''
+        }));
+    },
 };

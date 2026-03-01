@@ -4,12 +4,14 @@ export interface ILocation {
 }
 
 export interface IInvitation {
+    id?: string;
+    event_id?: string;
     recipient: string;
     passes: number;
     location: ILocation | null;
     date?: string;
     theme?: string;
-    code?: string;
+    access_code?: string;
 }
 
 export interface IValidationResult {
@@ -23,6 +25,7 @@ export interface IGenerationResult {
 }
 
 export interface IEvent {
+    id?: string;
     title: string;
     subtitle: string;
     date: string;

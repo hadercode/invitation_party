@@ -2,10 +2,10 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, Share2 } from 'lucide-react';
+
 import InvitationCard from '../components/InvitationCard';
 import { useInvitation } from '../hooks/useInvitation';
-import { useEvent } from '../../event/hooks/useEvent';
+import { useEvent } from '@/features/event/hooks/useEvent';
 
 /**
  * InvitationDetailPage
@@ -32,16 +32,7 @@ const InvitationDetailPage: React.FC = () => {
 
     return (
         <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem 1rem' }}>
-            <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Link to="/access" style={{ color: 'var(--text-muted)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
-                    <ChevronLeft size={16} /> Volver
-                </Link>
-                <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <Share2 size={14} /> Compartir
-                </button>
-            </div>
-
-            <InvitationCard data={inviteData} eventData={eventData} />
+            <InvitationCard data={inviteData} eventData={eventData ?? undefined} />
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}

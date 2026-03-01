@@ -1,9 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import './App.css';
+
 import AdminView from './features/admin/AdminView';
 import AccessPage from './features/access/pages/AccessPage';
 import InvitationDetailPage from './features/invitation/pages/InvitationDetailPage';
-import './App.css';
+import InvitationManagementPage from './features/invitation/pages/InvitationManagementPage';
 
 /**
  * Main App Component
@@ -16,6 +18,7 @@ const App: React.FC = () => {
           <Route path="/" element={<AdminView />} />
           <Route path="/access" element={<AccessPage />} />
           <Route path="/invitation/:code" element={<InvitationDetailPage />} />
+          <Route path="/invitation/manage" element={<InvitationManagementPage />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
 
