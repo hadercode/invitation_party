@@ -123,12 +123,6 @@ const InvitationCard: React.FC<InvitationCardProps> = ({ data, eventData }) => {
                 </div>
             </div>
 
-            <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
-                <p style={{ fontSize: '0.9rem', fontStyle: 'italic', opacity: 0.8, color: 'var(--text-muted)' }}>
-                    "Tómate un descanso en el bayou y celebra conmigo"
-                </p>
-            </div>
-
             {/* Decorative leaf corner */}
             <div style={{ position: 'absolute', bottom: '-10px', right: '-10px', opacity: 0.2 }}>
                 <svg width="100" height="100" viewBox="0 0 100 100">

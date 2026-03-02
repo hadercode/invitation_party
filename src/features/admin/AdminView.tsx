@@ -1,7 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import InvitationForm from '../invitation/components/InvitationForm';
-import { useInvitation } from '../invitation/hooks/useInvitation';
 import { useEventForm } from '../event/hooks/useEventForm';
 import EventForm from '../event/components/EventForm';
 import InvitationCard from '../invitation/components/InvitationCard';
@@ -14,10 +12,16 @@ import InvitationList from '../invitation/components/InvitationList';
  * Extracted feature for invitation creation/management and event configuration.
  */
 const AdminView: React.FC = () => {
-    const { data: inviteData, updateData: updateInvite } = useInvitation();
     const { watchedData: eventData, eventId } = useEventForm();
     const [refreshTrigger, setRefreshTrigger] = React.useState(0);
     const [selectedGuest, setSelectedGuest] = React.useState<IInvitation | null>(null);
+
+    const defaultInvitation: IInvitation = {
+        recipient: 'Nombre del Invitado',
+        passes: 1,
+        location: null,
+        access_code: 'XXXXXX'
+    };
 
     const handleRegistrationSuccess = () => {
         setRefreshTrigger(prev => prev + 1);
@@ -28,7 +32,7 @@ const AdminView: React.FC = () => {
     };
 
     // Use selected guest data for preview if available, otherwise use default preview data
-    const previewData: IInvitation = selectedGuest || inviteData;
+    const previewData: IInvitation = selectedGuest || defaultInvitation;
 
     return (
         <div className="admin-view">

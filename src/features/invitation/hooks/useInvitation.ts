@@ -1,16 +1,13 @@
 import { useState, useEffect } from 'react';
-import { invitationService } from '../api/invitationServices';
-import { IInvitation } from '../../../core/types/invitation';
+import { invitationService } from '../api/invitationService';
+import { IInvitation, IEvent } from '../../../core/types/invitation';
 
 /**
  * Hook to manage invitation logic.
  */
 export const useInvitation = (code: string | null = null) => {
-    const [data, setData] = useState<IInvitation>({
-        recipient: '',
-        passes: 1,
-        location: null
-    });
+    const [data, setData] = useState<IInvitation | null>(null);
+    const [eventData, setEventData] = useState<IEvent | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -22,29 +19,17 @@ export const useInvitation = (code: string | null = null) => {
 
     const loadInvitation = async (inviteCode: string) => {
         setLoading(true);
+        setError(null);
         try {
-            const invitation = await invitationService.getInvitationByCode(inviteCode);
-            setData(invitation);
-        } catch (err) {
-            setError('No se pudo cargar la invitación.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const updateData = (newData: Partial<IInvitation>) => {
-        setData(prev => ({ ...prev, ...newData }));
-    };
-
-    const handleGenerate = async () => {
-        setLoading(true);
-        try {
-            const result = await invitationService.generateInvitation(data);
-            if (result.success) {
-                alert(`¡Invitación generada! Código: ${result.code}`);
+            const result = await invitationService.getInvitationByCode(inviteCode);
+            if (result) {
+                setData(result.invitation);
+                setEventData(result.event);
+            } else {
+                setError('No se encontró la invitación solicitada.');
             }
         } catch (err) {
-            setError('Error al generar la invitación.');
+            setError('Error de conexión al cargar la invitación.');
         } finally {
             setLoading(false);
         }
@@ -52,9 +37,8 @@ export const useInvitation = (code: string | null = null) => {
 
     return {
         data,
+        eventData,
         loading,
-        error,
-        updateData,
-        handleGenerate
+        error
     };
 };

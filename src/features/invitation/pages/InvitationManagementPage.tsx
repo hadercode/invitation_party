@@ -50,32 +50,37 @@ const InvitationManagementPage: React.FC = () => {
                 </div>
             </header>
 
-            {/* Main Content: Two Columns */}
-            <main style={{ flex: 1, display: 'grid', gridTemplateColumns: 'minmax(350px, 450px) 1fr', gap: 0, overflow: 'hidden' }}>
+            {/* Main Content: Single Column / 2 Rows */}
+            <main style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.05)' }}>
+                <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem' }}>
 
-                {/* Left Column: Form (Static/Scrollable if small) */}
-                <aside style={{ padding: '2rem', borderRight: '1px solid var(--glass-border)', overflowY: 'auto', background: 'rgba(255,255,255,0.02)' }}>
-                    <div style={{ marginBottom: '2rem' }}>
-                        <h3 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--secondary)' }}>
-                            <UserPlus size={20} /> Nuevo Registro
-                        </h3>
+                    {/* Top: Registration Form */}
+                    <section style={{ marginBottom: '3rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                            <h3 style={{ fontSize: '1.2rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--secondary)' }}>
+                                <UserPlus size={22} /> Registro de Invitados
+                            </h3>
+                            <div style={{ padding: '0.5rem 1rem', background: 'rgba(212, 163, 115, 0.05)', borderRadius: '12px', border: '1px dotted var(--glass-border)' }}>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
+                                    Selecciona el evento y completa los datos.
+                                </p>
+                            </div>
+                        </div>
+
                         <InvitationRegistrationForm
                             initialEventId={initialEventId || undefined}
                             onSuccess={handleRegistrationSuccess}
                             onEventChange={handleEventChange}
                         />
-                    </div>
+                    </section>
 
-                    <div style={{ padding: '1.5rem', background: 'rgba(212, 163, 115, 0.05)', borderRadius: '20px', border: '1px dotted var(--glass-border)' }}>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-                            <strong>Tip:</strong> Selecciona el evento, registra al invitado y luego copia su código desde la lista de la derecha.
-                        </p>
-                    </div>
-                </aside>
+                    {/* Bottom: Guest List */}
+                    <section>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.5rem', color: 'var(--secondary)' }}>
+                            <Users size={22} />
+                            <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Invitados Registrados</h3>
+                        </div>
 
-                {/* Right Column: Independent Scrollable List */}
-                <section style={{ padding: '2rem', overflowY: 'auto', background: 'rgba(0,0,0,0.1)' }}>
-                    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
                         {activeEventId ? (
                             <InvitationList
                                 eventId={activeEventId}
@@ -83,12 +88,12 @@ const InvitationManagementPage: React.FC = () => {
                                 onSelect={() => { }}
                             />
                         ) : (
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', opacity: 0.5 }}>
+                            <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', opacity: 0.5 }}>
                                 <p>Selecciona un evento para ver la lista de invitados...</p>
                             </div>
                         )}
-                    </div>
-                </section>
+                    </section>
+                </div>
             </main>
         </div>
     );

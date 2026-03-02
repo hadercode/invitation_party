@@ -63,6 +63,55 @@ export const invitationService = {
     },
 
     /**
+     * Fetches an invitation by its access code or UUID.
+     * Includes the related event data.
+     */
+    getInvitationByCode: async (code: string): Promise<{ invitation: IInvitation; event: any } | null> => {
+        // Try to identify if code is a UUID or a short access code
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(code);
+
+        let query = supabase
+            .from('invitations')
+            .select('*, event:events(*)');
+
+        if (isUuid) {
+            query = query.eq('id', code);
+        } else {
+            query = query.eq('access_code', code);
+        }
+
+        const { data, error } = await query.single();
+
+        if (error || !data) {
+            console.error('Error fetching invitation:', error?.message);
+            return null;
+        }
+
+        const invitation: IInvitation = {
+            id: data.id,
+            event_id: data.event_id,
+            recipient: data.recipient,
+            passes: data.passes,
+            access_code: data.access_code,
+            location: null
+        };
+
+        const eventData = {
+            id: data.event.id,
+            title: data.event.title,
+            subtitle: data.event.subtitle,
+            date: data.event.event_date,
+            startTime: data.event.start_time,
+            endTime: data.event.end_time,
+            venue: data.event.venue_name,
+            location: data.event.city_location,
+            googleMapsUrl: data.event.google_maps_url
+        };
+
+        return { invitation, event: eventData };
+    },
+
+    /**
      * Deletes an invitation.
      */
     deleteInvitation: async (id: string): Promise<{ success: boolean; error?: string }> => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Trash2, Ticket, Search, Copy, Check } from 'lucide-react';
+import { Trash2, Ticket, Search, Copy, Check, Share2 } from 'lucide-react';
 import { IInvitation } from '../../../core/types/invitation';
 import { invitationService } from '../api/invitationService';
 
@@ -46,6 +46,13 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
         navigator.clipboard.writeText(code);
         setCopiedCode(code);
         setTimeout(() => setCopiedCode(null), 2000);
+    };
+
+    const handleWhatsAppShare = (invitation: IInvitation) => {
+        const baseUrl = window.location.origin;
+        const inviteUrl = `${baseUrl}/invitation/${invitation.access_code}`;
+        const message = `¡Hola ${invitation.recipient}! 👋%0A%0AEstás cordialmente invitado a nuestro evento especial. 🎉%0A%0APuedes ver tu invitación digital aquí: ${inviteUrl}%0A%0A¡Esperamos contar con tu presencia! ✨`;
+        window.open(`https://wa.me/?text=${message}`, '_blank');
     };
 
     const filteredInvitations = invitations.filter(inv =>
@@ -105,12 +112,22 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
                                         </div>
                                     </td>
                                     <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right' }}>
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); handleDelete(inv.id!); }}
-                                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff4d4d', opacity: 0.7 }}
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleWhatsAppShare(inv); }}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#25D366', opacity: 0.9, display: 'flex' }}
+                                                title="Reenviar por WhatsApp"
+                                            >
+                                                <Share2 size={16} />
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleDelete(inv.id!); }}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff4d4d', opacity: 0.7, display: 'flex' }}
+                                                title="Eliminar invitado"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
