@@ -14,19 +14,68 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --primary: #2d6a4f;
-  /* Emerald Green */
-  --primary-glow: #74c69d;
-  --secondary: #d4a373;
-  /* Golden/Champagne */
-  --accent: #b5838d;
-  /* Soft Lilac/Rose */
+  /* Tiana Princess / Bayou Theme Palette */
+  --primary: #2d6a4f; /* Bayou Deep Green */
+  --primary-light: #40916c;
+  --secondary: #d4a373; /* Golden Magic */
+  --accent: #b5838d; /* Water Lily Pink */
+  --bayou-gold: #ffcc33;
+  --bayou-glow: rgba(255, 204, 51, 0.4);
+  
   --bg-gradient: linear-gradient(135deg, #042111 0%, #081c15 100%);
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(181, 131, 141, 0.2);
-  --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(212, 163, 115, 0.25);
+  --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+  
   --text-main: #f8f9fa;
   --text-muted: #95d5b2;
+}
+
+/* Tiana Ornate Style */
+.tiana-border {
+  border: 2px solid var(--secondary);
+  position: relative;
+}
+
+.tiana-border::after {
+  content: '✦';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  color: var(--secondary);
+  font-size: 1.2rem;
+  text-shadow: 0 0 10px var(--bayou-gold);
+}
+
+/* Fireflies Background */
+.firefly-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.firefly {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--bayou-gold);
+  border-radius: 50%;
+  filter: blur(1px);
+  box-shadow: 0 0 10px 2px var(--bayou-glow);
+  opacity: 0;
+  animation: fly-and-glow auto infinite ease-in-out;
+}
+
+@keyframes fly-and-glow {
+  0% { transform: translate(0, 0); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.6; }
+  100% { transform: translate(var(--x), var(--y)); opacity: 0; }
 }
 
 * {

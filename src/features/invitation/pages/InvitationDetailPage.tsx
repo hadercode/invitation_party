@@ -48,99 +48,76 @@ const InvitationDetailPage: React.FC = () => {
     );
 
     return (
-        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem 1rem' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem 1rem', position: 'relative' }}>
+            {/* Ambient Fireflies */}
+            <div className="firefly-container">
+                {[...Array(20)].map((_, i) => (
+                    <div
+                        key={i}
+                        className="firefly"
+                        style={{
+                            '--x': `${Math.random() * 200 - 100}px`,
+                            '--y': `${Math.random() * -200 - 50}px`,
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            animationDuration: `${Math.random() * 3 + 2}s`,
+                            animationDelay: `${Math.random() * 5}s`,
+                        } as any}
+                    />
+                ))}
+            </div>
+
             <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
+                initial={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
+                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
             >
                 <InvitationCard data={inviteData} eventData={eventData ?? undefined} />
 
                 {/* RSVP Section */}
                 <motion.div
-                    className="glass-card"
+                    className="glass-card tiana-border"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    style={{ marginTop: '1.5rem', padding: '1.5rem', textAlign: 'center' }}
+                    transition={{ delay: 0.4 }}
+                    style={{ marginTop: '1.5rem', padding: '2rem', textAlign: 'center' }}
                 >
-                    <h4 style={{ marginBottom: '1rem', color: 'var(--secondary)' }}>¿Podrás acompañarnos?</h4>
+                    <h4 style={{ marginBottom: '1.5rem', color: 'var(--secondary)', fontFamily: "'Playfair Display', serif", fontSize: '1.4rem' }}>
+                        ¿Podrás acompañarnos al Bayou?
+                    </h4>
                     {inviteData.status === 'PENDING' || inviteData.status === 'COMPLETED' ? (
                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                             <button
                                 onClick={() => handleRSVP('CONFIRMED')}
                                 className="btn-primary"
-                                style={{ background: '#10b981', flex: 1 }}
+                                style={{ background: 'linear-gradient(135deg, #10b981 0%, #065f46 100%)', flex: 1, border: 'none' }}
                             >
-                                Confirmar
+                                Confirmar Asistencia
                             </button>
                             <button
                                 onClick={() => handleRSVP('DECLINED')}
                                 className="btn-secondary"
-                                style={{ flex: 1 }}
+                                style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', border: '1px solid var(--glass-border)' }}
                             >
                                 Declinar
                             </button>
                         </div>
                     ) : (
-                        <div style={{ padding: '0.5rem', borderRadius: '12px', background: 'rgba(255,255,255,0.05)' }}>
-                            <p style={{ fontWeight: '600' }}>
-                                Tu respuesta: <span style={{ color: inviteData.status === 'CONFIRMED' ? '#10b981' : '#ef4444' }}>
-                                    {inviteData.status === 'CONFIRMED' ? 'Confirmado' : 'Declinado'}
+                        <div style={{ padding: '1rem', borderRadius: '16px', background: 'rgba(255,204,51,0.05)', border: '1px solid rgba(255,204,51,0.1)' }}>
+                            <p style={{ fontWeight: '500', color: '#fff' }}>
+                                Tu respuesta: <span style={{ color: inviteData.status === 'CONFIRMED' ? '#10b981' : '#ef4444', fontWeight: '700' }}>
+                                    {inviteData.status === 'CONFIRMED' ? '¡Confirmada!' : 'Declinada'}
                                 </span>
                             </p>
                             <button
                                 onClick={() => handleRSVP(inviteData.status === 'CONFIRMED' ? 'PENDING' as any : 'PENDING' as any)}
-                                style={{ fontSize: '0.8rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', textDecoration: 'underline', marginTop: '0.5rem', cursor: 'pointer' }}
+                                style={{ fontSize: '0.85rem', background: 'transparent', border: 'none', color: 'var(--secondary)', textDecoration: 'underline', marginTop: '0.8rem', cursor: 'pointer', fontWeight: '600' }}
                             >
-                                Cambiar respuesta
+                                Cambiar mi respuesta
                             </button>
                         </div>
                     )}
                 </motion.div>
-            </motion.div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="glass-card"
-                style={{ marginTop: '1.5rem', textAlign: 'center', padding: '2rem' }}
-            >
-                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.2rem', fontWeight: '600', color: 'var(--secondary)' }}>
-                    Código de Acceso Digital
-                </h3>
-
-                <div style={{
-                    background: 'white',
-                    padding: '1.5rem',
-                    borderRadius: '24px',
-                    display: 'inline-block',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                    border: '8px solid rgba(212, 163, 115, 0.1)'
-                }}>
-                    <QRCodeSVG
-                        value={`INVITE:${inviteData.id}:${inviteData.recipient}`}
-                        size={200}
-                        level={"H"}
-                        includeMargin={false}
-                    />
-                </div>
-
-                <div style={{ marginTop: '1.5rem' }}>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                        Muestra este código en la entrada
-                    </p>
-                    <div style={{
-                        fontSize: '1.5rem',
-                        fontWeight: '800',
-                        letterSpacing: '4px',
-                        color: 'var(--secondary)',
-                        textShadow: '0 0 10px rgba(212, 163, 115, 0.3)'
-                    }}>
-                        {inviteData.access_code}
-                    </div>
-                </div>
             </motion.div>
         </div>
     );
