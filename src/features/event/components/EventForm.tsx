@@ -91,7 +91,7 @@ const EventForm: React.FC = () => {
                 </div>
 
                 {/* Venue Name */}
-                <div className="input-group">
+                <div className="input-group" style={{ gridColumn: 'span 2' }}>
                     <label>
                         <MapPin size={14} style={{ marginRight: '4px' }} /> Nombre del Lugar
                     </label>
@@ -105,7 +105,7 @@ const EventForm: React.FC = () => {
                 </div>
 
                 {/* City/Location */}
-                <div className="input-group">
+                <div className="input-group" style={{ gridColumn: 'span 2' }}>
                     <label>
                         <Globe size={14} style={{ marginRight: '4px' }} /> Ciudad / Ubicación
                     </label>
