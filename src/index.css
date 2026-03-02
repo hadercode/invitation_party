@@ -142,9 +142,9 @@ h2,
 }
 
 .invitation-container {
-  max-width: 950px;
-  margin: 3rem auto;
-  padding: 1.5rem;
+  max-width: 1300px;
+  margin: 0 auto 3rem;
+  padding: 0 1.5rem;
   display: grid;
   gap: 3rem;
   z-index: 1;
@@ -152,8 +152,13 @@ h2,
 
 @media (min-width: 850px) {
   .invitation-container {
-    grid-template-columns: 1fr 1.2fr;
+    grid-template-columns: minmax(300px, 550px) 1fr;
     align-items: start;
+  }
+
+  .preview-section {
+    position: sticky;
+    top: 2rem;
   }
 }
 

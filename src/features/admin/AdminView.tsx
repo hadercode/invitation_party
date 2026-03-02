@@ -52,7 +52,7 @@ const AdminView: React.FC = () => {
                 </div>
             </header>
 
-            <main className="invitation-container" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 550px) 1fr', gap: '3rem', padding: '0 1rem', maxWidth: '1300px', margin: '0 auto', alignItems: 'start' }}>
+            <main className="invitation-container">
                 <div className="admin-controls" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                     <section>
                         <h3 style={{ opacity: 0.6, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>
@@ -62,7 +62,7 @@ const AdminView: React.FC = () => {
                     </section>
                 </div>
 
-                <div className="preview-section" style={{ position: 'sticky', top: '2rem' }}>
+                <div className="preview-section">
                     <h3 style={{ marginBottom: '2rem', opacity: 0.6, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'center' }}>
                         Vista Previa {selectedGuest && <span style={{ color: 'var(--secondary)' }}> ( {selectedGuest.recipient} )</span>}
                     </h3>
