@@ -3,7 +3,7 @@ export interface ILocation {
     lng: number;
 }
 
-export type InvitationStatus = 'SENT' | 'CONFIRMED' | 'DECLINED' | 'COMPLETED';
+export type InvitationStatus = 'PENDING' | 'SENT' | 'CONFIRMED' | 'DECLINED' | 'COMPLETED';
 
 export interface IInvitation {
     id?: string;
