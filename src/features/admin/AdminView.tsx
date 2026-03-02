@@ -20,7 +20,8 @@ const AdminView: React.FC = () => {
         recipient: 'Nombre del Invitado',
         passes: 1,
         location: null,
-        access_code: 'XXXXXX'
+        access_code: 'XXXXXX',
+        status: 'PENDING'
     };
 
     const handleRegistrationSuccess = () => {
@@ -41,9 +42,12 @@ const AdminView: React.FC = () => {
                     Party Maker
                 </h1>
                 <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>Gestión Maestra de tu Celebración</p>
-                <div style={{ marginTop: '1rem' }}>
-                    <Link to="/access" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: '600' }}>
-                        👉 Probar Vista de Invitado
+                <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '2rem' }}>
+                    <Link to="/access" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        👉 Vista de Invitado
+                    </Link>
+                    <Link to="/invitation/manage" style={{ color: 'var(--secondary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        👥 Gestionar Invitados
                     </Link>
                 </div>
             </header>
