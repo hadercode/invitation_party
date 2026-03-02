@@ -35,10 +35,28 @@ export const useInvitation = (code: string | null = null) => {
         }
     };
 
+    const updateStatus = async (newStatus: 'CONFIRMED' | 'DECLINED') => {
+        if (!data?.id) return { success: false, error: 'No invitation ID' };
+
+        setLoading(true);
+        try {
+            const result = await invitationService.updateInvitationStatus(data.id, newStatus);
+            if (result.success) {
+                setData(prev => prev ? { ...prev, status: newStatus } : null);
+            }
+            return result;
+        } catch (err) {
+            return { success: false, error: 'Error de conexión' };
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return {
         data,
         eventData,
         loading,
-        error
+        error,
+        updateStatus
     };
 };

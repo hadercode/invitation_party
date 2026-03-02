@@ -34,7 +34,8 @@ export const invitationService = {
             recipient: item.recipient,
             passes: item.passes,
             access_code: item.access_code,
-            location: null // Location is usually defined at the event level
+            status: item.status || 'PENDING',
+            location: null
         }));
     },
 
@@ -50,7 +51,8 @@ export const invitationService = {
                 event_id: invitation.event_id,
                 recipient: invitation.recipient,
                 passes: invitation.passes || 1,
-                access_code: accessCode
+                access_code: accessCode,
+                status: 'PENDING'
             }])
             .select()
             .single();
@@ -93,6 +95,7 @@ export const invitationService = {
             recipient: data.recipient,
             passes: data.passes,
             access_code: data.access_code,
+            status: data.status || 'PENDING',
             location: null
         };
 
@@ -109,6 +112,22 @@ export const invitationService = {
         };
 
         return { invitation, event: eventData };
+    },
+
+    /**
+     * Updates the status of an invitation.
+     */
+    updateInvitationStatus: async (id: string, status: string): Promise<{ success: boolean; error?: string }> => {
+        const { error } = await supabase
+            .from('invitations')
+            .update({ status })
+            .eq('id', id);
+
+        if (error) {
+            return { success: false, error: error.message };
+        }
+
+        return { success: true };
     },
 
     /**

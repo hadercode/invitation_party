@@ -56,22 +56,6 @@ const AdminView: React.FC = () => {
                         </h3>
                         <EventForm />
                     </section>
-
-                    <section>
-                        <h3 style={{ opacity: 0.6, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>
-                            2. Gestión de Invitados
-                        </h3>
-                        {eventId ? (
-                            <>
-                                <InvitationRegistrationForm initialEventId={eventId || undefined} onSuccess={handleRegistrationSuccess} />
-                                <InvitationList eventId={eventId} refreshTrigger={refreshTrigger} onSelect={handleGuestSelect} />
-                            </>
-                        ) : (
-                            <div className="glass-card" style={{ padding: '2rem', textAlign: 'center', opacity: 0.7 }}>
-                                <p>Cargando información del evento...</p>
-                            </div>
-                        )}
-                    </section>
                 </div>
 
                 <div className="preview-section" style={{ position: 'sticky', top: '2rem' }}>

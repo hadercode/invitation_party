@@ -14,7 +14,17 @@ import { useInvitation } from '../hooks/useInvitation';
  */
 const InvitationDetailPage: React.FC = () => {
     const { code } = useParams<{ code: string }>();
-    const { data: inviteData, eventData, loading, error } = useInvitation(code || null);
+    const { data: inviteData, eventData, loading, error, updateStatus } = useInvitation(code || null);
+
+    const handleRSVP = async (status: 'CONFIRMED' | 'DECLINED') => {
+        const result = await updateStatus(status);
+        if (result.success) {
+            // Optional: Show a toast or notification
+            alert(status === 'CONFIRMED' ? '¡Gracias por confirmar!' : 'Lamentamos que no puedas asistir.');
+        } else {
+            alert('Error al actualizar tu respuesta. Inténtalo de nuevo.');
+        }
+    };
 
     if (loading) return (
         <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
@@ -45,14 +55,57 @@ const InvitationDetailPage: React.FC = () => {
                 transition={{ duration: 0.5 }}
             >
                 <InvitationCard data={inviteData} eventData={eventData ?? undefined} />
+
+                {/* RSVP Section */}
+                <motion.div
+                    className="glass-card"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    style={{ marginTop: '1.5rem', padding: '1.5rem', textAlign: 'center' }}
+                >
+                    <h4 style={{ marginBottom: '1rem', color: 'var(--secondary)' }}>¿Podrás acompañarnos?</h4>
+                    {inviteData.status === 'PENDING' || inviteData.status === 'COMPLETED' ? (
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                            <button
+                                onClick={() => handleRSVP('CONFIRMED')}
+                                className="btn-primary"
+                                style={{ background: '#10b981', flex: 1 }}
+                            >
+                                Confirmar
+                            </button>
+                            <button
+                                onClick={() => handleRSVP('DECLINED')}
+                                className="btn-secondary"
+                                style={{ flex: 1 }}
+                            >
+                                Declinar
+                            </button>
+                        </div>
+                    ) : (
+                        <div style={{ padding: '0.5rem', borderRadius: '12px', background: 'rgba(255,255,255,0.05)' }}>
+                            <p style={{ fontWeight: '600' }}>
+                                Tu respuesta: <span style={{ color: inviteData.status === 'CONFIRMED' ? '#10b981' : '#ef4444' }}>
+                                    {inviteData.status === 'CONFIRMED' ? 'Confirmado' : 'Declinado'}
+                                </span>
+                            </p>
+                            <button
+                                onClick={() => handleRSVP(inviteData.status === 'CONFIRMED' ? 'PENDING' as any : 'PENDING' as any)}
+                                style={{ fontSize: '0.8rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', textDecoration: 'underline', marginTop: '0.5rem', cursor: 'pointer' }}
+                            >
+                                Cambiar respuesta
+                            </button>
+                        </div>
+                    )}
+                </motion.div>
             </motion.div>
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.4 }}
                 className="glass-card"
-                style={{ marginTop: '2rem', textAlign: 'center', padding: '2rem' }}
+                style={{ marginTop: '1.5rem', textAlign: 'center', padding: '2rem' }}
             >
                 <h3 style={{ marginBottom: '1.5rem', fontSize: '1.2rem', fontWeight: '600', color: 'var(--secondary)' }}>
                     Código de Acceso Digital

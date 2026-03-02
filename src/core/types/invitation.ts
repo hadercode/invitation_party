@@ -3,6 +3,8 @@ export interface ILocation {
     lng: number;
 }
 
+export type InvitationStatus = 'SENT' | 'CONFIRMED' | 'DECLINED' | 'COMPLETED';
+
 export interface IInvitation {
     id?: string;
     event_id?: string;
@@ -12,6 +14,7 @@ export interface IInvitation {
     date?: string;
     theme?: string;
     access_code?: string;
+    status: InvitationStatus;
 }
 
 export interface IValidationResult {
