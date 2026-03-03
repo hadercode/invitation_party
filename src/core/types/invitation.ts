@@ -37,4 +37,5 @@ export interface IEvent {
     venue: string;
     location: string;
     googleMapsUrl: string;
+    videoUrl: string;
 }

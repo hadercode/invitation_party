@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
-import { motion } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, Sparkles } from 'lucide-react';
 
 import InvitationCard from '../components/InvitationCard';
 import { useInvitation } from '../hooks/useInvitation';
@@ -15,8 +15,18 @@ import { useInvitation } from '../hooks/useInvitation';
 const InvitationDetailPage: React.FC = () => {
     const { code } = useParams<{ code: string }>();
     const { data: inviteData, eventData, loading, error, updateStatus } = useInvitation(code || null);
+    const [isSparkling, setIsSparkling] = React.useState(false);
+    const [isShaking, setIsShaking] = React.useState(false);
 
     const handleRSVP = async (status: 'CONFIRMED' | 'DECLINED') => {
+        if (status === 'CONFIRMED') {
+            setIsSparkling(true);
+            setTimeout(() => setIsSparkling(false), 2000);
+        } else {
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 500);
+        }
+
         const result = await updateStatus(status);
         if (result.success) {
             // Optional: Show a toast or notification
@@ -77,30 +87,65 @@ const InvitationDetailPage: React.FC = () => {
                 {/* RSVP Section */}
                 <motion.div
                     className="glass-card tiana-border"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
                     style={{ marginTop: '1.5rem', padding: '2rem', textAlign: 'center' }}
                 >
                     <h4 style={{ marginBottom: '1.5rem', color: 'var(--secondary)', fontFamily: "'Playfair Display', serif", fontSize: '1.4rem' }}>
                         ¿Podrás acompañarnos al Bayou?
                     </h4>
                     {inviteData.status === 'PENDING' || inviteData.status === 'COMPLETED' ? (
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                            <button
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', position: 'relative' }}>
+                            {/* Sparkles effect for Confirmation */}
+                            <AnimatePresence>
+                                {isSparkling && (
+                                    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 10 }}>
+                                        {[...Array(12)].map((_, i) => (
+                                            <motion.div
+                                                key={i}
+                                                initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+                                                animate={{
+                                                    opacity: [0, 1, 0],
+                                                    scale: [0, 1.2, 0],
+                                                    x: (Math.random() - 0.5) * 200,
+                                                    y: (Math.random() - 0.5) * 150
+                                                }}
+                                                transition={{ duration: 1.5, ease: "easeOut" }}
+                                                style={{ position: 'absolute', left: '50%', top: '50%' }}
+                                            >
+                                                <Sparkles size={Math.random() * 20 + 10} color="var(--bayou-gold)" fill="var(--bayou-gold)" />
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                )}
+                            </AnimatePresence>
+
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={() => handleRSVP('CONFIRMED')}
                                 className="btn-primary"
-                                style={{ background: 'linear-gradient(135deg, #10b981 0%, #065f46 100%)', flex: 1, border: 'none' }}
+                                style={{ background: 'linear-gradient(135deg, #10b981 0%, #065f46 100%)', flex: 1, border: 'none', position: 'relative', overflow: 'hidden' }}
                             >
-                                Confirmar Asistencia
-                            </button>
-                            <button
+                                <motion.span
+                                    animate={isSparkling ? { scale: [1, 1.2, 1], color: ['#fff', 'var(--bayou-gold)', '#fff'] } : {}}
+                                >
+                                    Confirmar Asistencia
+                                </motion.span>
+                            </motion.button>
+
+                            <motion.button
+                                animate={isShaking ? { x: [-5, 5, -5, 5, 0], transition: { duration: 0.4 } } : {}}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={() => handleRSVP('DECLINED')}
                                 className="btn-secondary"
                                 style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', border: '1px solid var(--glass-border)' }}
                             >
                                 Declinar
-                            </button>
+                            </motion.button>
                         </div>
                     ) : (
                         <div style={{ padding: '1rem', borderRadius: '16px', background: 'rgba(255,204,51,0.05)', border: '1px solid rgba(255,204,51,0.1)' }}>

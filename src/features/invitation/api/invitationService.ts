@@ -108,7 +108,8 @@ export const invitationService = {
             endTime: data.event.end_time,
             venue: data.event.venue_name,
             location: data.event.city_location,
-            googleMapsUrl: data.event.google_maps_url
+            googleMapsUrl: data.event.google_maps_url,
+            videoUrl: data.event.video_url
         };
 
         return { invitation, event: eventData };
