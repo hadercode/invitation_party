@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { IInvitation } from '../../../core/types/invitation';
 import { invitationService } from '../api/invitationService';
+import { INVITATION_MESSAGES } from '../../../core/constants/messages';
 
 /**
  * useInvitationList
@@ -28,13 +29,13 @@ export const useInvitationList = (eventId: string, refreshTrigger: number) => {
     }, [eventId, refreshTrigger]);
 
     const handleDelete = async (id: string) => {
-        if (window.confirm('¿Estás seguro de eliminar este invitado?')) {
+        if (window.confirm(INVITATION_MESSAGES.CONFIRM_DELETE)) {
             const result = await invitationService.deleteInvitation(id);
             if (result.success) {
                 await loadInvitations();
                 return true;
             } else {
-                alert('Error al eliminar: ' + result.error);
+                alert(INVITATION_MESSAGES.ERROR_DELETE + result.error);
                 return false;
             }
         }
@@ -50,7 +51,7 @@ export const useInvitationList = (eventId: string, refreshTrigger: number) => {
     const handleWhatsAppShare = async (invitation: IInvitation) => {
         const baseUrl = window.location.origin;
         const inviteUrl = `${baseUrl}/invitation/${invitation.access_code}`;
-        const message = `¡Hola ${invitation.recipient}! 👋%0A%0AEstás cordialmente invitado a nuestro evento especial. 🎉%0A%0APuedes ver tu invitación digital aquí: ${inviteUrl}%0A%0A¡Esperamos contar con tu presencia! ✨`;
+        const message = INVITATION_MESSAGES.WHATSAPP_MESSAGE(invitation.recipient, inviteUrl);
 
         window.open(`https://wa.me/?text=${message}`, '_blank');
 
@@ -89,12 +90,18 @@ export const useInvitationList = (eventId: string, refreshTrigger: number) => {
     }, [invitations, searchTerm, selectedStatuses]);
 
     const handleCopyTable = () => {
-        const headers = ['Nombre', 'Pases', 'Código', 'Estado'].join('\t');
+        const headers = [
+            INVITATION_MESSAGES.TABLE_HEADERS.NAME,
+            INVITATION_MESSAGES.TABLE_HEADERS.PASSES,
+            INVITATION_MESSAGES.TABLE_HEADERS.CODE,
+            INVITATION_MESSAGES.TABLE_HEADERS.STATUS
+        ].join('\t');
+
         const rows = filteredInvitations.map(inv => {
-            const statusLabel = inv.status === 'SENT' ? 'Enviado' :
-                inv.status === 'CONFIRMED' ? 'Confirmado' :
-                    inv.status === 'DECLINED' ? 'Declinado' :
-                        'Pendiente';
+            const statusLabel = inv.status === 'SENT' ? INVITATION_MESSAGES.STATUS_LABELS.SENT :
+                inv.status === 'CONFIRMED' ? INVITATION_MESSAGES.STATUS_LABELS.CONFIRMED :
+                    inv.status === 'DECLINED' ? INVITATION_MESSAGES.STATUS_LABELS.DECLINED :
+                        INVITATION_MESSAGES.STATUS_LABELS.PENDING;
             return [
                 inv.recipient,
                 inv.passes,

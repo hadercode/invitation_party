@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { invitationService } from '../api/invitationService';
 import { IInvitation, IEvent } from '../../../core/types/invitation';
+import { INVITATION_MESSAGES } from '../../../core/constants/messages';
 
 /**
  * Hook to manage invitation logic.
@@ -26,17 +27,17 @@ export const useInvitation = (code: string | null = null) => {
                 setData(result.invitation);
                 setEventData(result.event);
             } else {
-                setError('No se encontró la invitación solicitada.');
+                setError(INVITATION_MESSAGES.ERROR_NOT_FOUND);
             }
         } catch (err) {
-            setError('Error de conexión al cargar la invitación.');
+            setError(INVITATION_MESSAGES.ERROR_CONNECTION_LOAD);
         } finally {
             setLoading(false);
         }
     };
 
     const updateStatus = async (newStatus: 'CONFIRMED' | 'DECLINED') => {
-        if (!data?.id) return { success: false, error: 'No invitation ID' };
+        if (!data?.id) return { success: false, error: INVITATION_MESSAGES.ERROR_NO_ID };
 
         setLoading(true);
         try {
@@ -46,7 +47,7 @@ export const useInvitation = (code: string | null = null) => {
             }
             return result;
         } catch (err) {
-            return { success: false, error: 'Error de conexión' };
+            return { success: false, error: INVITATION_MESSAGES.ERROR_CONNECTION_UPDATE };
         } finally {
             setLoading(false);
         }

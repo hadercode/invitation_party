@@ -1,11 +1,11 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { QRCodeSVG } from 'qrcode.react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Sparkles } from 'lucide-react';
 
 import InvitationCard from '../components/InvitationCard';
 import { useInvitation } from '../hooks/useInvitation';
+import { INVITATION_MESSAGES } from '@/core/constants/messages';
 
 /**
  * InvitationDetailPage
@@ -13,6 +13,7 @@ import { useInvitation } from '../hooks/useInvitation';
  * Supports fetching by UUID or Access Code.
  */
 const InvitationDetailPage: React.FC = () => {
+
     const { code } = useParams<{ code: string }>();
     const { data: inviteData, eventData, loading, error, updateStatus } = useInvitation(code || null);
     const [isSparkling, setIsSparkling] = React.useState(false);
@@ -148,14 +149,14 @@ const InvitationDetailPage: React.FC = () => {
                                 className="btn-secondary"
                                 style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', border: '1px solid var(--glass-border)' }}
                             >
-                                Declinar
+                                {INVITATION_MESSAGES.STATUS_LABELS.DECLINED}
                             </motion.button>
                         </div>
                     ) : (
                         <div style={{ padding: '1rem', borderRadius: '16px', background: 'rgba(255,204,51,0.05)', border: '1px solid rgba(255,204,51,0.1)' }}>
                             <p style={{ fontWeight: '500', color: '#fff' }}>
                                 Tu respuesta: <span style={{ color: inviteData.status === 'CONFIRMED' ? '#10b981' : (inviteData.status === 'DECLINED' ? '#ef4444' : 'var(--bayou-gold)'), fontWeight: '700' }}>
-                                    {inviteData.status === 'CONFIRMED' ? '¡Confirmada!' : (inviteData.status === 'DECLINED' ? 'Declinada' : 'Recibida')}
+                                    {inviteData.status === 'CONFIRMED' ? INVITATION_MESSAGES.STATUS_LABELS.CONFIRMED_ALT : (inviteData.status === 'DECLINED' ? INVITATION_MESSAGES.STATUS_LABELS.DECLINED : INVITATION_MESSAGES.STATUS_LABELS.RECEIVED)}
                                 </span>
                             </p>
                             <button

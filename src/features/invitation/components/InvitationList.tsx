@@ -1,8 +1,9 @@
 import React from 'react';
-import { Trash2, Ticket, Search, Copy, Check, Share2, FileText } from 'lucide-react';
+import { Ticket, Search, Check, FileText } from 'lucide-react';
 import { IInvitation } from '../../../core/types/invitation';
 import { useInvitationList } from '../hooks/useInvitationList';
 import InvitationTable from './InvitationTable';
+import { INVITATION_MESSAGES } from '../../../core/constants/messages';
 
 interface InvitationListProps {
     eventId: string;
@@ -33,10 +34,10 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
     } = useInvitationList(eventId, refreshTrigger);
 
     const statusLabels: Record<string, { label: string, color: string }> = {
-        'PENDING': { label: 'Pendientes', color: 'var(--text-muted)' },
-        'SENT': { label: 'Enviados', color: '#74c69d' },
-        'CONFIRMED': { label: 'Confirmados', color: '#4d96ff' },
-        'DECLINED': { label: 'Declinados', color: '#ff4d4d' }
+        'PENDING': { label: INVITATION_MESSAGES.STATUS_LABELS.PENDING, color: 'var(--text-muted)' },
+        'SENT': { label: INVITATION_MESSAGES.STATUS_LABELS.SENT, color: '#74c69d' },
+        'CONFIRMED': { label: INVITATION_MESSAGES.STATUS_LABELS.CONFIRMED, color: '#4d96ff' },
+        'DECLINED': { label: INVITATION_MESSAGES.STATUS_LABELS.DECLINED, color: '#ff4d4d' }
     };
 
     return (
@@ -44,7 +45,7 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
             {/* Header with Search and Copy Button */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
                 <h4 style={{ color: 'var(--secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                    <Ticket size={18} /> Invitados Registrados
+                    <Ticket size={18} /> {INVITATION_MESSAGES.UI.TITLE_GUESTS}
                 </h4>
                 <div style={{ display: 'flex', gap: '0.5rem', flex: '1', maxWidth: '400px', justifyContent: 'flex-end' }}>
                     <button
@@ -65,13 +66,13 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
                         title="Copiar tabla para Excel/Text"
                     >
                         {tableCopied ? <Check size={14} /> : <FileText size={14} />}
-                        {tableCopied ? 'Copiado' : 'Copiar Tabla'}
+                        {tableCopied ? INVITATION_MESSAGES.UI.COPIED : INVITATION_MESSAGES.UI.COPY_TABLE}
                     </button>
                     <div style={{ position: 'relative', flex: '1', maxWidth: '250px' }}>
                         <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
                         <input
                             type="text"
-                            placeholder="Buscar por nombre o código..."
+                            placeholder={INVITATION_MESSAGES.UI.SEARCH_PLACEHOLDER}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             style={{
