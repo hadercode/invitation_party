@@ -30,7 +30,11 @@ const InvitationDetailPage: React.FC = () => {
         const result = await updateStatus(status);
         if (result.success) {
             // Optional: Show a toast or notification
-            alert(status === 'CONFIRMED' ? '¡Gracias por confirmar!' : 'Lamentamos que no puedas asistir.');
+            if (status === 'CONFIRMED') {
+                alert('¡Gracias por confirmar!');
+            } else if (status === 'DECLINED') {
+                alert('Lamentamos que no puedas asistir.');
+            }
         } else {
             alert('Error al actualizar tu respuesta. Inténtalo de nuevo.');
         }
@@ -96,7 +100,7 @@ const InvitationDetailPage: React.FC = () => {
                     <h4 style={{ marginBottom: '1.5rem', color: 'var(--secondary)', fontFamily: "'Playfair Display', serif", fontSize: '1.4rem' }}>
                         ¿Podrás acompañarnos?
                     </h4>
-                    {inviteData.status === 'PENDING' || inviteData.status === 'COMPLETED' ? (
+                    {inviteData.status === 'PENDING' || inviteData.status === 'SENT' || inviteData.status === 'COMPLETED' ? (
                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', position: 'relative' }}>
                             {/* Sparkles effect for Confirmation */}
                             <AnimatePresence>
@@ -150,8 +154,8 @@ const InvitationDetailPage: React.FC = () => {
                     ) : (
                         <div style={{ padding: '1rem', borderRadius: '16px', background: 'rgba(255,204,51,0.05)', border: '1px solid rgba(255,204,51,0.1)' }}>
                             <p style={{ fontWeight: '500', color: '#fff' }}>
-                                Tu respuesta: <span style={{ color: inviteData.status === 'CONFIRMED' ? '#10b981' : '#ef4444', fontWeight: '700' }}>
-                                    {inviteData.status === 'CONFIRMED' ? '¡Confirmada!' : 'Declinada'}
+                                Tu respuesta: <span style={{ color: inviteData.status === 'CONFIRMED' ? '#10b981' : (inviteData.status === 'DECLINED' ? '#ef4444' : 'var(--bayou-gold)'), fontWeight: '700' }}>
+                                    {inviteData.status === 'CONFIRMED' ? '¡Confirmada!' : (inviteData.status === 'DECLINED' ? 'Declinada' : 'Recibida')}
                                 </span>
                             </p>
                             <button
