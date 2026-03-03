@@ -91,6 +91,10 @@ export const useInvitationList = (eventId: string, refreshTrigger: number) => {
         });
     }, [invitations, searchTerm, selectedStatuses]);
 
+    const totalFilteredPasses = useMemo(() => {
+        return filteredInvitations.reduce((sum: number, inv: IInvitation) => sum + (inv.passes || 0), 0);
+    }, [filteredInvitations]);
+
     const handleCopyTable = () => {
         const headers = [
             INVITATION_MESSAGES.TABLE_HEADERS.NAME,
@@ -127,6 +131,7 @@ export const useInvitationList = (eventId: string, refreshTrigger: number) => {
         selectedStatuses,
         tableCopied,
         filteredInvitations,
+        totalFilteredPasses,
         statusCounts,
         handleDelete,
         handleCopy,

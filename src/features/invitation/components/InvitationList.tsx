@@ -25,6 +25,7 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
         selectedStatuses,
         tableCopied,
         filteredInvitations,
+        totalFilteredPasses,
         statusCounts,
         handleDelete,
         handleCopy,
@@ -40,9 +41,23 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
         <GlassCard padding="1.5rem">
             {/* Header with Search and Copy Button */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
-                <h4 style={{ color: 'var(--secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                    <Ticket size={18} /> {INVITATION_MESSAGES.UI.TITLE_GUESTS}
-                </h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <h4 style={{ color: 'var(--secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                        <Ticket size={18} /> {INVITATION_MESSAGES.UI.TITLE_GUESTS}
+                    </h4>
+                    <div style={{
+                        background: 'rgba(212, 163, 115, 0.1)',
+                        padding: '0.2rem 0.6rem',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(212, 163, 115, 0.3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.4rem'
+                    }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--secondary)' }}>{totalFilteredPasses}</span>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>pases</span>
+                    </div>
+                </div>
                 <div style={{ display: 'flex', gap: '0.5rem', flex: '1', maxWidth: '400px', justifyContent: 'flex-end' }}>
                     <button
                         onClick={handleCopyTable}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, Users, UserPlus } from 'lucide-react';
+import { ChevronLeft, Users, UserPlus, Ticket } from 'lucide-react';
 import { useEventForm } from '../../event/hooks/useEventForm';
 import InvitationRegistrationForm from '../components/InvitationRegistrationForm';
 import InvitationList from '../components/InvitationList';

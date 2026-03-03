@@ -25,7 +25,7 @@ const InvitationDetailPage: React.FC = () => {
 
         if (status === 'CONFIRMED') {
             setIsSparkling(true);
-            setTimeout(() => setIsSparkling(false), 2000);
+            setTimeout(() => setIsSparkling(false), 4000);
         } else if (status === 'DECLINED') {
             setIsShaking(true);
             setTimeout(() => setIsShaking(false), 500);
@@ -38,7 +38,7 @@ const InvitationDetailPage: React.FC = () => {
         });
     };
 
-    if (isPending) {
+    if (isPending && !inviteData) {
         return <LoadingSpinner message="Cargando tu invitación mágica..." />;
     }
 
@@ -60,7 +60,7 @@ const InvitationDetailPage: React.FC = () => {
     }
 
     return (
-        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem 1rem', position: 'relative' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem 1rem', position: 'relative', overflow: 'hidden' }}>
             {/* Ambient Fireflies */}
             <div className="firefly-container">
                 {[...Array(20)].map((_, i) => (
@@ -99,75 +99,140 @@ const InvitationDetailPage: React.FC = () => {
                         ¿Podrás acompañarnos?
                     </h4>
 
-                    {inviteData.status === 'PENDING' || inviteData.status === 'SENT' || inviteData.status === 'COMPLETED' ? (
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', position: 'relative' }}>
-                            {/* Sparkles effect for Confirmation */}
-                            <AnimatePresence>
-                                {isSparkling && (
-                                    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 10 }}>
-                                        {[...Array(12)].map((_, i) => (
-                                            <motion.div
-                                                key={i}
-                                                initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
-                                                animate={{
-                                                    opacity: [0, 1, 0],
-                                                    scale: [0, 1.2, 0],
-                                                    x: (Math.random() - 0.5) * 200,
-                                                    y: (Math.random() - 0.5) * 150
-                                                }}
-                                                transition={{ duration: 1.5, ease: "easeOut" }}
-                                                style={{ position: 'absolute', left: '50%', top: '50%' }}
-                                            >
-                                                <Sparkles size={Math.random() * 20 + 10} color="var(--bayou-gold)" fill="var(--bayou-gold)" />
-                                            </motion.div>
-                                        ))}
-                                    </div>
-                                )}
-                            </AnimatePresence>
+                    <div style={{ position: 'relative', width: '100%' }}>
+                        {/* Magic Effects (Moved here to persist across status changes) */}
+                        {/* Magic Aura Effect */}
+                        <AnimatePresence>
+                            {isSparkling && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{
+                                        opacity: [0, 0.4, 0.6, 0.4, 0],
+                                        scale: [1, 1.3, 1.5, 1.3, 1],
+                                        rotate: [0, 180, 360]
+                                    }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 4, ease: "easeInOut" }}
+                                    style={{
+                                        position: 'absolute',
+                                        inset: '-30px',
+                                        borderRadius: '32px',
+                                        background: 'radial-gradient(circle, var(--bayou-glow) 0%, transparent 70%)',
+                                        pointerEvents: 'none',
+                                        zIndex: 5
+                                    }}
+                                />
+                            )}
+                        </AnimatePresence>
 
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => handleRSVP('CONFIRMED')}
-                                className="btn-primary"
-                                style={{ background: 'linear-gradient(135deg, #10b981 0%, #065f46 100%)', flex: 1, border: 'none', position: 'relative', overflow: 'hidden' }}
-                                disabled={updateStatus.isPending}
-                            >
-                                <motion.span
-                                    animate={isSparkling ? { scale: [1, 1.2, 1], color: ['#fff', 'var(--bayou-gold)', '#fff'] } : {}}
+                        {/* Grander Sparkles explosion for Confirmation */}
+                        <AnimatePresence>
+                            {isSparkling && (
+                                <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1000 }}>
+                                    {[...Array(50)].map((_, i) => (
+                                        <motion.div
+                                            key={i}
+                                            initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+                                            animate={{
+                                                opacity: [0, 1, 1, 0],
+                                                scale: [0, Math.random() * 2 + 1, 0],
+                                                x: (Math.random() - 0.5) * 600,
+                                                y: (Math.random() - 0.5) * 400,
+                                                rotate: [0, Math.random() * 360]
+                                            }}
+                                            transition={{
+                                                duration: Math.random() * 2.5 + 1.5,
+                                                ease: "easeOut",
+                                                delay: Math.random() * 0.4
+                                            }}
+                                            style={{ position: 'absolute', left: '50%', top: '50%' }}
+                                        >
+                                            <Sparkles
+                                                size={Math.random() * 35 + 15}
+                                                color={i % 2 === 0 ? "var(--bayou-gold)" : "var(--secondary)"}
+                                                fill={i % 2 === 0 ? "var(--bayou-gold)" : "var(--secondary)"}
+                                                style={{ filter: 'drop-shadow(0 0 15px var(--bayou-glow))' }}
+                                            />
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            )}
+                        </AnimatePresence>
+
+                        <AnimatePresence mode="wait">
+                            {(inviteData.status === 'PENDING' || inviteData.status === 'SENT' || inviteData.status === 'COMPLETED' || isSparkling) ? (
+                                <motion.div
+                                    key="rsvp-buttons"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.5 }}
+                                    style={{ display: 'flex', gap: '1rem', justifyContent: 'center', position: 'relative' }}
                                 >
-                                    Confirmar Asistencia
-                                </motion.span>
-                            </motion.button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => handleRSVP('CONFIRMED')}
+                                        className="btn-primary"
+                                        style={{
+                                            background: 'linear-gradient(135deg, #10b981 0%, #065f46 100%)',
+                                            flex: 1,
+                                            border: 'none',
+                                            position: 'relative',
+                                            overflow: 'visible',
+                                            boxShadow: isSparkling ? '0 0 50px var(--bayou-glow)' : 'none',
+                                            zIndex: 10
+                                        }}
+                                        disabled={updateStatus.isPending}
+                                    >
+                                        <motion.span
+                                            animate={isSparkling ? {
+                                                scale: [1, 1.1, 1],
+                                                color: ['#fff', 'var(--bayou-gold)', '#fff'],
+                                                textShadow: ['0 0 0px #fff', '0 0 20px var(--bayou-gold)', '0 0 0px #fff']
+                                            } : {}}
+                                            transition={{ duration: 1, repeat: 3 }}
+                                        >
+                                            Confirmar Asistencia
+                                        </motion.span>
+                                    </motion.button>
 
-                            <motion.button
-                                animate={isShaking ? { x: [-5, 5, -5, 5, 0], transition: { duration: 0.4 } } : {}}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => handleRSVP('DECLINED')}
-                                className="btn-secondary"
-                                style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', border: '1px solid var(--glass-border)' }}
-                                disabled={updateStatus.isPending}
-                            >
-                                {INVITATION_MESSAGES.STATUS_LABELS.DECLINED}
-                            </motion.button>
-                        </div>
-                    ) : (
-                        <div style={{ padding: '1rem', borderRadius: '16px', background: 'rgba(255,204,51,0.05)', border: '1px solid rgba(255,204,51,0.1)' }}>
-                            <p style={{ fontWeight: '500', color: '#fff' }}>
-                                Tu respuesta: <span style={{ color: inviteData.status === 'CONFIRMED' ? '#10b981' : (inviteData.status === 'DECLINED' ? '#ef4444' : 'var(--bayou-gold)'), fontWeight: '700' }}>
-                                    {inviteData.status === 'CONFIRMED' ? INVITATION_MESSAGES.STATUS_LABELS.CONFIRMED_ALT : (inviteData.status === 'DECLINED' ? INVITATION_MESSAGES.STATUS_LABELS.DECLINED : INVITATION_MESSAGES.STATUS_LABELS.RECEIVED)}
-                                </span>
-                            </p>
-                            <button
-                                onClick={() => handleRSVP('PENDING' as any)}
-                                style={{ fontSize: '0.85rem', background: 'transparent', border: 'none', color: 'var(--secondary)', textDecoration: 'underline', marginTop: '0.8rem', cursor: 'pointer', fontWeight: '600' }}
-                                disabled={updateStatus.isPending}
-                            >
-                                Cambiar mi respuesta
-                            </button>
-                        </div>
-                    )}
+                                    <motion.button
+                                        animate={isShaking ? { x: [-5, 5, -5, 5, 0], transition: { duration: 0.4 } } : {}}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => handleRSVP('DECLINED')}
+                                        className="btn-secondary"
+                                        style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', border: '1px solid var(--glass-border)' }}
+                                        disabled={updateStatus.isPending}
+                                    >
+                                        {INVITATION_MESSAGES.STATUS_LABELS.DECLINED}
+                                    </motion.button>
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="rsvp-status"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.8, ease: "easeOut" }}
+                                    style={{ padding: '1.5rem', borderRadius: '16px', background: 'rgba(255,204,51,0.05)', border: '1px solid rgba(255,204,51,0.1)', position: 'relative', zIndex: 1 }}
+                                >
+                                    <p style={{ fontWeight: '500', color: '#fff', fontSize: '1.1rem' }}>
+                                        Tu respuesta: <span style={{ color: inviteData.status === 'CONFIRMED' ? '#10b981' : (inviteData.status === 'DECLINED' ? '#ef4444' : 'var(--bayou-gold)'), fontWeight: '700' }}>
+                                            {inviteData.status === 'CONFIRMED' ? INVITATION_MESSAGES.STATUS_LABELS.CONFIRMED_ALT : (inviteData.status === 'DECLINED' ? INVITATION_MESSAGES.STATUS_LABELS.DECLINED : INVITATION_MESSAGES.STATUS_LABELS.RECEIVED)}
+                                        </span>
+                                    </p>
+                                    <button
+                                        onClick={() => handleRSVP('PENDING' as any)}
+                                        style={{ fontSize: '0.9rem', background: 'transparent', border: 'none', color: 'var(--secondary)', textDecoration: 'underline', marginTop: '1rem', cursor: 'pointer', fontWeight: '600' }}
+                                        disabled={updateStatus.isPending}
+                                    >
+                                        Cambiar mi respuesta
+                                    </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </GlassCard>
             </motion.div>
         </div>
