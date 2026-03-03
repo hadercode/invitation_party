@@ -94,7 +94,7 @@ const InvitationDetailPage: React.FC = () => {
                     style={{ marginTop: '1.5rem', padding: '2rem', textAlign: 'center' }}
                 >
                     <h4 style={{ marginBottom: '1.5rem', color: 'var(--secondary)', fontFamily: "'Playfair Display', serif", fontSize: '1.4rem' }}>
-                        ¿Podrás acompañarnos al Bayou?
+                        ¿Podrás acompañarnos?
                     </h4>
                     {inviteData.status === 'PENDING' || inviteData.status === 'COMPLETED' ? (
                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', position: 'relative' }}>

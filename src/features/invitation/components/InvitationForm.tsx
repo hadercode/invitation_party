@@ -1,7 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { User, Ticket, MapPin } from 'lucide-react';
 import { IInvitation } from '../../../core/types/invitation';
-import { LatLng } from 'leaflet';
 
 interface InvitationFormProps {
     data: IInvitation;
@@ -17,10 +16,6 @@ const InvitationForm: React.FC<InvitationFormProps> = ({ data, onUpdate, onGener
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         onUpdate({ [name]: value });
-    };
-
-    const handleLocationChange = (latlng: LatLng) => {
-        onUpdate({ location: { lat: latlng.lat, lng: latlng.lng } });
     };
 
     return (
