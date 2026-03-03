@@ -1,11 +1,12 @@
 import React from 'react';
-import { Settings, Calendar, Clock, MapPin, Globe, Type, AlertCircle } from 'lucide-react';
+import { Settings, Calendar, Clock, MapPin, Globe, Type, AlertCircle, Video } from 'lucide-react';
 import { useEventForm } from '../hooks/useEventForm';
+import GlassCard from '../../../shared/components/GlassCard';
 
 /**
  * EventForm Component
  * Refactored to use react-hook-form and Zod validation.
- * Logic is isolated in the useEventForm custom hook.
+ * Integrated with shared GlassCard.
  */
 const EventForm: React.FC = () => {
     const { form, onSubmit, isSubmitting, loadError } = useEventForm();
@@ -13,15 +14,20 @@ const EventForm: React.FC = () => {
 
     if (loadError) {
         return (
-            <div className="glass-card" style={{ padding: '2rem', textAlign: 'center', color: '#ff4d4d' }}>
+            <GlassCard style={{ padding: '2rem', textAlign: 'center', color: '#ff4d4d' }}>
                 <AlertCircle size={40} style={{ marginBottom: '1rem' }} />
                 <p>{loadError}</p>
-            </div>
+            </GlassCard>
         );
     }
 
     return (
-        <form onSubmit={onSubmit} className="glass-card event-config-form" style={{ marginBottom: '2rem' }}>
+        <GlassCard
+            as="form"
+            onSubmit={onSubmit}
+            className="event-config-form"
+            style={{ marginBottom: '2rem' }}
+        >
             <h3 style={{ marginBottom: '1.5rem', fontSize: '1.25rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Settings size={20} /> Detalles del Evento
             </h3>
@@ -36,9 +42,9 @@ const EventForm: React.FC = () => {
                         type="text"
                         placeholder="Ej: Mis Quince Años"
                         {...register('title')}
-                        style={errors.title ? { borderColor: '#ff4d4d' } : {}}
+                        className={errors.title ? 'input-error' : ''}
                     />
-                    {errors.title && <span style={{ color: '#ff4d4d', fontSize: '0.75rem', marginTop: '4px' }}>{errors.title.message}</span>}
+                    {errors.title && <span className="error-text">{errors.title.message}</span>}
                 </div>
 
                 {/* Event Subtitle */}
@@ -61,9 +67,9 @@ const EventForm: React.FC = () => {
                     <input
                         type="date"
                         {...register('date')}
-                        style={errors.date ? { borderColor: '#ff4d4d' } : {}}
+                        className={errors.date ? 'input-error' : ''}
                     />
-                    {errors.date && <span style={{ color: '#ff4d4d', fontSize: '0.75rem', marginTop: '4px' }}>{errors.date.message}</span>}
+                    {errors.date && <span className="error-text">{errors.date.message}</span>}
                 </div>
 
                 {/* Times */}
@@ -75,7 +81,7 @@ const EventForm: React.FC = () => {
                         <input
                             type="time"
                             {...register('startTime')}
-                            style={errors.startTime ? { borderColor: '#ff4d4d' } : {}}
+                            className={errors.startTime ? 'input-error' : ''}
                         />
                     </div>
                     <div style={{ flex: 1 }}>
@@ -85,7 +91,7 @@ const EventForm: React.FC = () => {
                         <input
                             type="time"
                             {...register('endTime')}
-                            style={errors.endTime ? { borderColor: '#ff4d4d' } : {}}
+                            className={errors.endTime ? 'input-error' : ''}
                         />
                     </div>
                 </div>
@@ -99,9 +105,9 @@ const EventForm: React.FC = () => {
                         type="text"
                         placeholder="Ej: Salón de Fiestas..."
                         {...register('venue')}
-                        style={errors.venue ? { borderColor: '#ff4d4d' } : {}}
+                        className={errors.venue ? 'input-error' : ''}
                     />
-                    {errors.venue && <span style={{ color: '#ff4d4d', fontSize: '0.75rem', marginTop: '4px' }}>{errors.venue.message}</span>}
+                    {errors.venue && <span className="error-text">{errors.venue.message}</span>}
                 </div>
 
                 {/* City/Location */}
@@ -113,9 +119,9 @@ const EventForm: React.FC = () => {
                         type="text"
                         placeholder="Ej: Maracaibo, Venezuela"
                         {...register('location')}
-                        style={errors.location ? { borderColor: '#ff4d4d' } : {}}
+                        className={errors.location ? 'input-error' : ''}
                     />
-                    {errors.location && <span style={{ color: '#ff4d4d', fontSize: '0.75rem', marginTop: '4px' }}>{errors.location.message}</span>}
+                    {errors.location && <span className="error-text">{errors.location.message}</span>}
                 </div>
 
                 {/* Google Maps URL */}
@@ -127,9 +133,23 @@ const EventForm: React.FC = () => {
                         type="text"
                         placeholder="Pega el src del iframe de Google Maps aquí"
                         {...register('googleMapsUrl')}
-                        style={errors.googleMapsUrl ? { borderColor: '#ff4d4d' } : {}}
+                        className={errors.googleMapsUrl ? 'input-error' : ''}
                     />
-                    {errors.googleMapsUrl && <span style={{ color: '#ff4d4d', fontSize: '0.75rem', marginTop: '4px' }}>{errors.googleMapsUrl.message}</span>}
+                    {errors.googleMapsUrl && <span className="error-text">{errors.googleMapsUrl.message}</span>}
+                </div>
+
+                {/* Video URL */}
+                <div className="input-group" style={{ gridColumn: 'span 2' }}>
+                    <label>
+                        <Video size={14} style={{ marginRight: '4px' }} /> URL de Video (YouTube/Direct)
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="Pega la URL del video de la invitación"
+                        {...register('videoUrl')}
+                        className={errors.videoUrl ? 'input-error' : ''}
+                    />
+                    {errors.videoUrl && <span className="error-text">{errors.videoUrl.message}</span>}
                 </div>
             </div>
 
@@ -141,7 +161,7 @@ const EventForm: React.FC = () => {
             >
                 {isSubmitting ? 'Guardando...' : 'Guardar Información del Evento'}
             </button>
-        </form>
+        </GlassCard>
     );
 };
 

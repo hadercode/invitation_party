@@ -1,66 +1,63 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Sparkles } from 'lucide-react';
+import { ChevronLeft, Sparkles, AlertCircle } from 'lucide-react';
 
 import InvitationCard from '../components/InvitationCard';
 import { useInvitation } from '../hooks/useInvitation';
-import { INVITATION_MESSAGES } from '@/core/constants/messages';
+import { INVITATION_MESSAGES } from '../../../core/constants/messages';
+import GlassCard from '../../../shared/components/GlassCard';
+import LoadingSpinner from '../../../shared/components/LoadingSpinner';
 
 /**
  * InvitationDetailPage
  * Displays the invitation card and a QR code for check-in.
- * Supports fetching by UUID or Access Code.
+ * Integrated with TanStack Query and shared components.
  */
 const InvitationDetailPage: React.FC = () => {
-
     const { code } = useParams<{ code: string }>();
-    const { data: inviteData, eventData, loading, error, updateStatus } = useInvitation(code || null);
+    const { data: inviteData, eventData, isPending, error, updateStatus } = useInvitation(code || null);
     const [isSparkling, setIsSparkling] = React.useState(false);
     const [isShaking, setIsShaking] = React.useState(false);
 
     const handleRSVP = async (status: 'CONFIRMED' | 'DECLINED') => {
+        if (!inviteData?.id) return;
+
         if (status === 'CONFIRMED') {
             setIsSparkling(true);
             setTimeout(() => setIsSparkling(false), 2000);
-        } else {
+        } else if (status === 'DECLINED') {
             setIsShaking(true);
             setTimeout(() => setIsShaking(false), 500);
         }
 
-        const result = await updateStatus(status);
-        if (result.success) {
-            // Optional: Show a toast or notification
-            if (status === 'CONFIRMED') {
-                alert('¡Gracias por confirmar!');
-            } else if (status === 'DECLINED') {
-                alert('Lamentamos que no puedas asistir.');
+        updateStatus.mutate({ id: inviteData.id, newStatus: status }, {
+            onError: () => {
+                alert(INVITATION_MESSAGES.ERROR_CONNECTION_UPDATE);
             }
-        } else {
-            alert('Error al actualizar tu respuesta. Inténtalo de nuevo.');
-        }
+        });
     };
 
-    if (loading) return (
-        <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-            <div style={{ textAlign: 'center' }}>
-                <div className="loading-spinner" style={{ marginBottom: '1rem' }}></div>
-                <p style={{ fontFamily: "'Outfit', sans-serif", opacity: 0.8 }}>Cargando tu invitación mágica...</p>
-            </div>
-        </div>
-    );
+    if (isPending) {
+        return <LoadingSpinner message="Cargando tu invitación mágica..." />;
+    }
 
-    if (error || !inviteData) return (
-        <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexDirection: 'column', gap: '1.5rem', padding: '2rem' }}>
-            <div className="glass-card" style={{ padding: '2.5rem', textAlign: 'center', maxWidth: '400px' }}>
-                <h2 style={{ color: '#ff4d4d', marginBottom: '1rem' }}>¡Ups!</h2>
-                <p style={{ marginBottom: '2rem', opacity: 0.9 }}>{error || 'No pudimos encontrar tu invitación.'}</p>
-                <Link to="/access" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <ChevronLeft size={18} /> Volver a intentar
-                </Link>
+    if (error || !inviteData) {
+        return (
+            <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexDirection: 'column', gap: '1.5rem', padding: '2rem' }}>
+                <GlassCard style={{ padding: '2.5rem', textAlign: 'center', maxWidth: '400px' }}>
+                    <AlertCircle size={48} color="#ff4d4d" style={{ marginBottom: '1rem' }} />
+                    <h2 style={{ color: '#ff4d4d', marginBottom: '1rem' }}>¡Ups!</h2>
+                    <p style={{ marginBottom: '2rem', opacity: 0.9 }}>
+                        {error || INVITATION_MESSAGES.ERROR_NOT_FOUND}
+                    </p>
+                    <Link to="/access" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <ChevronLeft size={18} /> Volver a intentar
+                    </Link>
+                </GlassCard>
             </div>
-        </div>
-    );
+        );
+    }
 
     return (
         <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem 1rem', position: 'relative' }}>
@@ -90,8 +87,8 @@ const InvitationDetailPage: React.FC = () => {
                 <InvitationCard data={inviteData} eventData={eventData ?? undefined} />
 
                 {/* RSVP Section */}
-                <motion.div
-                    className="glass-card tiana-border"
+                <GlassCard
+                    className="tiana-border"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
@@ -101,6 +98,7 @@ const InvitationDetailPage: React.FC = () => {
                     <h4 style={{ marginBottom: '1.5rem', color: 'var(--secondary)', fontFamily: "'Playfair Display', serif", fontSize: '1.4rem' }}>
                         ¿Podrás acompañarnos?
                     </h4>
+
                     {inviteData.status === 'PENDING' || inviteData.status === 'SENT' || inviteData.status === 'COMPLETED' ? (
                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', position: 'relative' }}>
                             {/* Sparkles effect for Confirmation */}
@@ -133,6 +131,7 @@ const InvitationDetailPage: React.FC = () => {
                                 onClick={() => handleRSVP('CONFIRMED')}
                                 className="btn-primary"
                                 style={{ background: 'linear-gradient(135deg, #10b981 0%, #065f46 100%)', flex: 1, border: 'none', position: 'relative', overflow: 'hidden' }}
+                                disabled={updateStatus.isPending}
                             >
                                 <motion.span
                                     animate={isSparkling ? { scale: [1, 1.2, 1], color: ['#fff', 'var(--bayou-gold)', '#fff'] } : {}}
@@ -148,6 +147,7 @@ const InvitationDetailPage: React.FC = () => {
                                 onClick={() => handleRSVP('DECLINED')}
                                 className="btn-secondary"
                                 style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', border: '1px solid var(--glass-border)' }}
+                                disabled={updateStatus.isPending}
                             >
                                 {INVITATION_MESSAGES.STATUS_LABELS.DECLINED}
                             </motion.button>
@@ -160,14 +160,15 @@ const InvitationDetailPage: React.FC = () => {
                                 </span>
                             </p>
                             <button
-                                onClick={() => handleRSVP(inviteData.status === 'CONFIRMED' ? 'PENDING' as any : 'PENDING' as any)}
+                                onClick={() => handleRSVP('PENDING' as any)}
                                 style={{ fontSize: '0.85rem', background: 'transparent', border: 'none', color: 'var(--secondary)', textDecoration: 'underline', marginTop: '0.8rem', cursor: 'pointer', fontWeight: '600' }}
+                                disabled={updateStatus.isPending}
                             >
                                 Cambiar mi respuesta
                             </button>
                         </div>
                     )}
-                </motion.div>
+                </GlassCard>
             </motion.div>
         </div>
     );

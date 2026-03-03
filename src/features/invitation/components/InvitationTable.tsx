@@ -1,6 +1,9 @@
 import React from 'react';
-import { Trash2, Copy, Check, Share2 } from 'lucide-react';
+import { Trash2, Copy, Check, Share2, Info } from 'lucide-react';
 import { IInvitation } from '../../../core/types/invitation';
+import { INVITATION_MESSAGES } from '../../../core/constants/messages';
+import StatusBadge from '../../../shared/components/StatusBadge';
+import LoadingSpinner from '../../../shared/components/LoadingSpinner';
 
 interface InvitationTableProps {
     invitations: IInvitation[];
@@ -13,6 +16,10 @@ interface InvitationTableProps {
     onSelect: (invitation: IInvitation) => void;
 }
 
+/**
+ * InvitationTable
+ * Guest details table with centralized status management and accessibility.
+ */
 const InvitationTable: React.FC<InvitationTableProps> = ({
     invitations,
     loading,
@@ -23,33 +30,32 @@ const InvitationTable: React.FC<InvitationTableProps> = ({
     onUpdateStatus,
     onSelect
 }) => {
-    if (loading) {
-        return (
-            <div style={{ padding: '3rem', textAlign: 'center' }}>
-                <div className="loading-spinner" style={{ margin: '0 auto 1rem' }}></div>
-                <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>Cargando invitados registrados...</p>
-            </div>
-        );
+    if (loading && invitations.length === 0) {
+        return <LoadingSpinner message={INVITATION_MESSAGES.UI.LOADING_INVITATIONS} />;
     }
 
     if (invitations.length === 0) {
         return (
             <div style={{ padding: '3rem', textAlign: 'center', opacity: 0.5 }}>
-                <p>No se encontraron invitados con los criterios seleccionados.</p>
+                <Info size={40} style={{ marginBottom: '1rem', opacity: 0.3 }} />
+                <p>{INVITATION_MESSAGES.UI.NO_INVITATIONS_FOUND}</p>
             </div>
         );
     }
 
     return (
         <div style={{ maxHeight: '450px', overflowY: 'auto', paddingRight: '0.5rem' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+            <table
+                style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}
+                aria-label="Tabla de invitados"
+            >
                 <thead>
                     <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--glass-border)', color: 'var(--secondary)', opacity: 0.8 }}>
-                        <th style={{ padding: '0.5rem' }}>Nombre</th>
-                        <th style={{ padding: '0.5rem', textAlign: 'center' }}>Pases</th>
-                        <th style={{ padding: '0.5rem', textAlign: 'center' }}>Código</th>
-                        <th style={{ padding: '0.5rem', textAlign: 'center' }}>Estado</th>
-                        <th style={{ padding: '0.5rem', textAlign: 'right' }}>Acciones</th>
+                        <th style={{ padding: '0.5rem' }}>{INVITATION_MESSAGES.TABLE_HEADERS.NAME}</th>
+                        <th style={{ padding: '0.5rem', textAlign: 'center' }}>{INVITATION_MESSAGES.TABLE_HEADERS.PASSES}</th>
+                        <th style={{ padding: '0.5rem', textAlign: 'center' }}>{INVITATION_MESSAGES.TABLE_HEADERS.CODE}</th>
+                        <th style={{ padding: '0.5rem', textAlign: 'center' }}>{INVITATION_MESSAGES.TABLE_HEADERS.STATUS}</th>
+                        <th style={{ padding: '0.5rem', textAlign: 'right' }}>{INVITATION_MESSAGES.TABLE_HEADERS.ACTIONS}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,7 +67,9 @@ const InvitationTable: React.FC<InvitationTableProps> = ({
                             className="hover-row"
                         >
                             <td style={{ padding: '0.75rem 0.5rem', fontWeight: '500' }}>{inv.recipient}</td>
-                            <td style={{ padding: '0.75rem 0.5rem', textAlign: 'center' }}>{inv.passes}</td>
+                            <td style={{ padding: '0.75rem 0.5rem', textAlign: 'center' }}>
+                                <span style={{ opacity: 0.8 }}>{inv.passes}</span>
+                            </td>
                             <td style={{ padding: '0.75rem 0.5rem', textAlign: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
                                     <code style={{ background: 'rgba(212, 163, 115, 0.1)', padding: '0.2rem 0.4rem', borderRadius: '4px', color: 'var(--secondary)', fontSize: '0.8rem' }}>
@@ -70,35 +78,15 @@ const InvitationTable: React.FC<InvitationTableProps> = ({
                                     <button
                                         onClick={(e) => { e.stopPropagation(); onCopy(inv.access_code || ''); }}
                                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}
+                                        aria-label={INVITATION_MESSAGES.UI.COPY_CODE}
+                                        title={INVITATION_MESSAGES.UI.COPY_CODE}
                                     >
                                         {copiedCode === inv.access_code ? <Check size={14} color="#74c69d" /> : <Copy size={14} />}
                                     </button>
                                 </div>
                             </td>
                             <td style={{ padding: '0.75rem 0.5rem', textAlign: 'center' }}>
-                                <span style={{
-                                    fontSize: '0.75rem',
-                                    padding: '0.2rem 0.5rem',
-                                    borderRadius: '12px',
-                                    background: inv.status === 'SENT' ? 'rgba(116, 198, 157, 0.1)' :
-                                        inv.status === 'CONFIRMED' ? 'rgba(77, 150, 255, 0.1)' :
-                                            inv.status === 'DECLINED' ? 'rgba(255, 77, 77, 0.1)' :
-                                                'rgba(255, 255, 255, 0.05)',
-                                    color: inv.status === 'SENT' ? '#74c69d' :
-                                        inv.status === 'CONFIRMED' ? '#4d96ff' :
-                                            inv.status === 'DECLINED' ? '#ff4d4d' :
-                                                'var(--text-muted)',
-                                    border: `1px solid ${inv.status === 'SENT' ? 'rgba(116, 198, 157, 0.2)' :
-                                        inv.status === 'CONFIRMED' ? 'rgba(77, 150, 255, 0.2)' :
-                                            inv.status === 'DECLINED' ? 'rgba(255, 77, 77, 0.2)' :
-                                                'rgba(255, 255, 255, 0.1)'
-                                        }`
-                                }}>
-                                    {inv.status === 'SENT' ? 'Enviado' :
-                                        inv.status === 'CONFIRMED' ? 'Confirmado' :
-                                            inv.status === 'DECLINED' ? 'Declinado' :
-                                                'Pendiente'}
-                                </span>
+                                <StatusBadge status={inv.status!} />
                             </td>
                             <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem' }}>
@@ -108,23 +96,29 @@ const InvitationTable: React.FC<InvitationTableProps> = ({
                                                 e.stopPropagation();
                                                 await onUpdateStatus(inv.id!, 'SENT');
                                             }}
-                                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#74c69d', opacity: 0.9, display: 'flex' }}
-                                            title="Marcar como Enviado"
+                                            className="btn-action confirm"
+                                            style={{ color: '#74c69d' }}
+                                            title={INVITATION_MESSAGES.UI.MARK_SENT}
+                                            aria-label={INVITATION_MESSAGES.UI.MARK_SENT}
                                         >
                                             <Check size={16} />
                                         </button>
                                     )}
                                     <button
                                         onClick={(e) => { e.stopPropagation(); onWhatsAppShare(inv); }}
-                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#25D366', opacity: 0.9, display: 'flex' }}
-                                        title="Reenviar por WhatsApp"
+                                        className="btn-action whatsapp"
+                                        style={{ color: '#25D366' }}
+                                        title={INVITATION_MESSAGES.UI.SHARE_WHATSAPP}
+                                        aria-label={INVITATION_MESSAGES.UI.SHARE_WHATSAPP}
                                     >
                                         <Share2 size={16} />
                                     </button>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); onDelete(inv.id!); }}
-                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff4d4d', opacity: 0.7, display: 'flex' }}
-                                        title="Eliminar invitado"
+                                        className="btn-action delete"
+                                        style={{ color: '#ff4d4d' }}
+                                        title={INVITATION_MESSAGES.UI.DELETE_ACTION}
+                                        aria-label={INVITATION_MESSAGES.UI.DELETE_ACTION}
                                     >
                                         <Trash2 size={16} />
                                     </button>

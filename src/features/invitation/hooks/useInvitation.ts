@@ -1,63 +1,55 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { invitationService } from '../api/invitationService';
-import { IInvitation, IEvent } from '../../../core/types/invitation';
 import { INVITATION_MESSAGES } from '../../../core/constants/messages';
 
 /**
- * Hook to manage invitation logic.
+ * Hook to manage invitation logic using TanStack Query.
  */
 export const useInvitation = (code: string | null = null) => {
-    const [data, setData] = useState<IInvitation | null>(null);
-    const [eventData, setEventData] = useState<IEvent | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        if (code) {
-            loadInvitation(code);
-        }
-    }, [code]);
+    const {
+        data: result,
+        isLoading,
+        isError,
+        error: queryError
+    } = useQuery({
+        queryKey: ['invitation', code],
+        queryFn: () => code ? invitationService.getInvitationByCode(code) : Promise.resolve(null),
+        enabled: !!code,
+    });
 
-    const loadInvitation = async (inviteCode: string) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const result = await invitationService.getInvitationByCode(inviteCode);
-            if (result) {
-                setData(result.invitation);
-                setEventData(result.event);
-            } else {
-                setError(INVITATION_MESSAGES.ERROR_NOT_FOUND);
-            }
-        } catch (err) {
-            setError(INVITATION_MESSAGES.ERROR_CONNECTION_LOAD);
-        } finally {
-            setLoading(false);
+    const statusMutation = useMutation({
+        mutationFn: ({ id, newStatus }: { id: string, newStatus: 'CONFIRMED' | 'DECLINED' }) =>
+            invitationService.updateInvitationStatus(id, newStatus),
+        onSuccess: () => {
+            // Invalidate and refetch
+            queryClient.invalidateQueries({ queryKey: ['invitation', code] });
+            queryClient.invalidateQueries({ queryKey: ['invitations'] });
         }
-    };
+    });
 
     const updateStatus = async (newStatus: 'CONFIRMED' | 'DECLINED') => {
-        if (!data?.id) return { success: false, error: INVITATION_MESSAGES.ERROR_NO_ID };
+        if (!result?.invitation?.id) {
+            return { success: false, error: INVITATION_MESSAGES.ERROR_NO_ID };
+        }
 
-        setLoading(true);
         try {
-            const result = await invitationService.updateInvitationStatus(data.id, newStatus);
-            if (result.success) {
-                setData(prev => prev ? { ...prev, status: newStatus } : null);
-            }
-            return result;
+            const res = await statusMutation.mutateAsync({
+                id: result.invitation.id,
+                newStatus
+            });
+            return res;
         } catch (err) {
             return { success: false, error: INVITATION_MESSAGES.ERROR_CONNECTION_UPDATE };
-        } finally {
-            setLoading(false);
         }
     };
 
     return {
-        data,
-        eventData,
-        loading,
-        error,
-        updateStatus
+        data: result?.invitation || null,
+        eventData: result?.event || null,
+        isPending: isLoading,
+        error: isError ? INVITATION_MESSAGES.ERROR_CONNECTION_LOAD : null,
+        updateStatus: statusMutation,
     };
 };

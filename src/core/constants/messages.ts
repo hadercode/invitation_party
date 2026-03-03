@@ -30,12 +30,15 @@ export const INVITATION_MESSAGES = {
         NAME: 'Nombre',
         PASSES: 'Pases',
         CODE: 'Código',
-        STATUS: 'Estado'
+        STATUS: 'Estado',
+        ACTIONS: 'Acciones'
     },
 
     UI: {
         LOADING_GUESTS: 'Cargando invitados registrados...',
+        LOADING_INVITATIONS: 'Cargando invitaciones...',
         NO_GUESTS_FOUND: 'No se encontraron invitados con los criterios seleccionados.',
+        NO_INVITATIONS_FOUND: 'No se encontraron invitaciones.',
         COPY_TABLE: 'Copiar Tabla',
         COPIED: 'Copiado',
         SEARCH_PLACEHOLDER: 'Buscar por nombre o código...',
@@ -47,7 +50,11 @@ export const INVITATION_MESSAGES = {
         RECIPIENT_PLACEHOLDER: 'Ej: Familia Rodriguez',
         PASSES_LABEL: 'Pases',
         REGISTER_BUTTON: 'Registrar Invitado',
-        REGISTERING_BUTTON: 'Registrando...'
+        REGISTERING_BUTTON: 'Registrando...',
+        COPY_CODE: 'Copiar código',
+        MARK_SENT: 'Marcar como enviado',
+        SHARE_WHATSAPP: 'Compartir por WhatsApp',
+        DELETE_ACTION: 'Eliminar registro'
     },
     VALIDATION: {
         EVENT_REQUIRED: 'Por favor selecciona un evento.',

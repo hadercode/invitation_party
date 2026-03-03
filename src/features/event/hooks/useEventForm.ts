@@ -23,7 +23,8 @@ export const useEventForm = (onSuccess?: () => void) => {
             endTime: '',
             venue: '',
             location: '',
-            googleMapsUrl: ''
+            googleMapsUrl: '',
+            videoUrl: ''
         }
     });
 
@@ -38,7 +39,8 @@ export const useEventForm = (onSuccess?: () => void) => {
                     setEventId(data.id || null);
                     form.reset({
                         ...data,
-                        subtitle: data.subtitle || ''
+                        subtitle: data.subtitle || '',
+                        videoUrl: data.videoUrl || ''
                     });
                 }
             } catch (error) {
@@ -55,7 +57,8 @@ export const useEventForm = (onSuccess?: () => void) => {
             // Ensure data matches IEvent (subtitle must be string)
             const eventPayload: IEvent = {
                 ...data,
-                subtitle: data.subtitle || ''
+                subtitle: data.subtitle || '',
+                videoUrl: data.videoUrl || '',
             };
             const result = await eventService.saveEventConfig(eventPayload);
             if (result.success) {

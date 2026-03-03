@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { IEvent } from '../../../core/types/invitation';
 import { invitationService } from '../api/invitationService';
 import { eventService } from '../../event/api/eventService';
@@ -19,16 +20,14 @@ interface UseInvitationRegistrationProps {
 
 /**
  * useInvitationRegistration
- * Custom hook to handle invitation registration logic, including event loading,
- * form state management, and submission.
+ * Custom hook with TanStack Query for guest registration.
  */
 export const useInvitationRegistration = ({
     initialEventId,
     onSuccess,
     onEventChange
 }: UseInvitationRegistrationProps) => {
-    const [events, setEvents] = useState<IEvent[]>([]);
-    const [loadingEvents, setLoadingEvents] = useState(true);
+    const queryClient = useQueryClient();
 
     const {
         register,
@@ -36,7 +35,7 @@ export const useInvitationRegistration = ({
         reset,
         watch,
         setValue,
-        formState: { errors, isSubmitting }
+        formState: { errors }
     } = useForm<RegistrationFormData>({
         defaultValues: {
             eventId: initialEventId || '',
@@ -47,22 +46,43 @@ export const useInvitationRegistration = ({
 
     const selectedEventId = watch('eventId');
 
-    // Load available events
-    useEffect(() => {
-        const fetchEvents = async () => {
-            const data = await eventService.getAllEvents();
-            setEvents(data);
-            setLoadingEvents(false);
+    // Query for events
+    const { data: events = [], isLoading: loadingEvents } = useQuery({
+        queryKey: ['events'],
+        queryFn: () => eventService.getAllEvents(),
+    });
 
-            // If we have an initial ID, ensure it's selected
+    // Mutation for registration
+    const registrationMutation = useMutation({
+        mutationFn: (data: RegistrationFormData) => invitationService.createInvitation({
+            event_id: data.eventId,
+            recipient: data.recipient,
+            passes: data.passes
+        }),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['invitations'] });
+            reset({
+                eventId: variables.eventId,
+                recipient: '',
+                passes: 1
+            });
+            onSuccess();
+        },
+        onError: (error: any) => {
+            alert(INVITATION_MESSAGES.ERROR_REGISTER + error.message);
+        }
+    });
+
+    // Handle initial event selection
+    useEffect(() => {
+        if (!loadingEvents && events.length > 0) {
             if (initialEventId) {
                 setValue('eventId', initialEventId);
-            } else if (data.length > 0 && !selectedEventId) {
-                setValue('eventId', data[0].id || '');
+            } else if (!selectedEventId) {
+                setValue('eventId', events[0].id || '');
             }
-        };
-        fetchEvents();
-    }, [initialEventId, setValue, selectedEventId]);
+        }
+    }, [initialEventId, setValue, selectedEventId, loadingEvents, events]);
 
     // Notify parent when event selection changes
     useEffect(() => {
@@ -71,28 +91,12 @@ export const useInvitationRegistration = ({
         }
     }, [selectedEventId, onEventChange]);
 
-    const onSubmit = async (data: RegistrationFormData) => {
+    const onSubmit = (data: RegistrationFormData) => {
         if (!data.eventId) {
             alert(INVITATION_MESSAGES.VALIDATION.EVENT_REQUIRED);
             return;
         }
-
-        const result = await invitationService.createInvitation({
-            event_id: data.eventId,
-            recipient: data.recipient,
-            passes: data.passes
-        });
-
-        if (result.success) {
-            reset({
-                eventId: data.eventId,
-                recipient: '',
-                passes: 1
-            });
-            onSuccess();
-        } else {
-            alert(INVITATION_MESSAGES.ERROR_REGISTER + result.error);
-        }
+        registrationMutation.mutate(data);
     };
 
     return {
@@ -101,7 +105,7 @@ export const useInvitationRegistration = ({
         register,
         handleSubmit: handleSubmit(onSubmit),
         errors,
-        isSubmitting,
+        isSubmitting: registrationMutation.isPending,
         selectedEventId
     };
 };

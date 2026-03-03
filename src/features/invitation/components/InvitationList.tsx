@@ -4,6 +4,7 @@ import { IInvitation } from '../../../core/types/invitation';
 import { useInvitationList } from '../hooks/useInvitationList';
 import InvitationTable from './InvitationTable';
 import { INVITATION_MESSAGES } from '../../../core/constants/messages';
+import GlassCard from '../../../shared/components/GlassCard';
 
 interface InvitationListProps {
     eventId: string;
@@ -13,7 +14,7 @@ interface InvitationListProps {
 
 /**
  * InvitationList
- * Displays a list of all guests with their access codes and options to manage them.
+ * High-level orchestration for guest management. Integrated with shared components.
  */
 const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger, onSelect }) => {
     const {
@@ -33,15 +34,10 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
         updateStatus
     } = useInvitationList(eventId, refreshTrigger);
 
-    const statusLabels: Record<string, { label: string, color: string }> = {
-        'PENDING': { label: INVITATION_MESSAGES.STATUS_LABELS.PENDING, color: 'var(--text-muted)' },
-        'SENT': { label: INVITATION_MESSAGES.STATUS_LABELS.SENT, color: '#74c69d' },
-        'CONFIRMED': { label: INVITATION_MESSAGES.STATUS_LABELS.CONFIRMED, color: '#4d96ff' },
-        'DECLINED': { label: INVITATION_MESSAGES.STATUS_LABELS.DECLINED, color: '#ff4d4d' }
-    };
+    const statuses = ['PENDING', 'SENT', 'CONFIRMED', 'DECLINED'] as const;
 
     return (
-        <div className="glass-card" style={{ padding: '1.5rem' }}>
+        <GlassCard padding="1.5rem">
             {/* Header with Search and Copy Button */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
                 <h4 style={{ color: 'var(--secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
@@ -63,7 +59,8 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
                             gap: '0.4rem',
                             transition: 'all 0.2s'
                         }}
-                        title="Copiar tabla para Excel/Text"
+                        title={INVITATION_MESSAGES.UI.COPY_TABLE}
+                        aria-label={INVITATION_MESSAGES.UI.COPY_TABLE}
                     >
                         {tableCopied ? <Check size={14} /> : <FileText size={14} />}
                         {tableCopied ? INVITATION_MESSAGES.UI.COPIED : INVITATION_MESSAGES.UI.COPY_TABLE}
@@ -86,23 +83,28 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
                                 outline: 'none',
                                 boxSizing: 'border-box'
                             }}
+                            aria-label="Buscar invitados"
                         />
                     </div>
                 </div>
             </div>
 
             {/* Status Filters */}
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--glass-border)' }}>
-                {Object.entries(statusLabels).map(([status, { label, color }]) => (
+            <div
+                style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--glass-border)' }}
+                role="group"
+                aria-label="Filtros por estado"
+            >
+                {statuses.map((status) => (
                     <button
                         key={status}
                         onClick={() => toggleStatus(status)}
                         style={{
                             padding: '0.3rem 0.75rem',
                             borderRadius: '20px',
-                            border: `1px solid ${selectedStatuses.includes(status) ? color : 'var(--glass-border)'}`,
-                            background: selectedStatuses.includes(status) ? `${color}20` : 'transparent',
-                            color: selectedStatuses.includes(status) ? color : 'var(--text-muted)',
+                            border: `1px solid ${selectedStatuses.includes(status) ? 'var(--secondary)' : 'var(--glass-border)'}`,
+                            background: selectedStatuses.includes(status) ? 'rgba(212, 163, 115, 0.15)' : 'transparent',
+                            color: selectedStatuses.includes(status) ? 'var(--secondary)' : 'var(--text-muted)',
                             fontSize: '0.75rem',
                             cursor: 'pointer',
                             display: 'flex',
@@ -112,7 +114,7 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
                             opacity: selectedStatuses.length === 0 || selectedStatuses.includes(status) ? 1 : 0.6
                         }}
                     >
-                        {label}
+                        {INVITATION_MESSAGES.STATUS_LABELS[status as keyof typeof INVITATION_MESSAGES.STATUS_LABELS]}
                         <span style={{
                             background: 'rgba(255,255,255,0.1)',
                             padding: '0.1rem 0.4rem',
@@ -135,7 +137,7 @@ const InvitationList: React.FC<InvitationListProps> = ({ eventId, refreshTrigger
                 onUpdateStatus={updateStatus}
                 onSelect={onSelect}
             />
-        </div>
+        </GlassCard>
     );
 };
 

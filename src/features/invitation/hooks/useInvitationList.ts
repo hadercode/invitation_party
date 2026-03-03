@@ -1,51 +1,48 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { IInvitation } from '../../../core/types/invitation';
 import { invitationService } from '../api/invitationService';
 import { INVITATION_MESSAGES } from '../../../core/constants/messages';
 
 /**
  * useInvitationList
- * Custom hook to handle business logic for the invitation list,
- * including loading, filtering, searching, and actions.
+ * Custom hook with TanStack Query for guest management.
  */
 export const useInvitationList = (eventId: string, refreshTrigger: number) => {
-    const [invitations, setInvitations] = useState<IInvitation[]>([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [searchTerm, setSearchTerm] = useState('');
     const [copiedCode, setCopiedCode] = useState<string | null>(null);
     const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
     const [tableCopied, setTableCopied] = useState(false);
 
-    const loadInvitations = async () => {
-        if (!eventId) return;
-        setLoading(true);
-        const data = await invitationService.getInvitationsByEvent(eventId);
-        setInvitations(data);
-        setLoading(false);
-    };
+    // Query for invitations
+    const { data: invitations = [], isLoading } = useQuery({
+        queryKey: ['invitations', eventId, refreshTrigger],
+        queryFn: () => invitationService.getInvitationsByEvent(eventId),
+        enabled: !!eventId,
+    });
 
-    useEffect(() => {
-        loadInvitations();
-    }, [eventId, refreshTrigger]);
+    // Mutations
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) => invitationService.deleteInvitation(id),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['invitations'] })
+    });
+
+    const statusMutation = useMutation({
+        mutationFn: ({ id, status }: { id: string, status: IInvitation['status'] }) =>
+            invitationService.updateInvitationStatus(id, status!),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['invitations'] });
+            queryClient.invalidateQueries({ queryKey: ['invitation'] });
+        }
+    });
 
     const handleDelete = async (id: string) => {
         if (window.confirm(INVITATION_MESSAGES.CONFIRM_DELETE)) {
-            const result = await invitationService.deleteInvitation(id);
-            if (result.success) {
-                await loadInvitations();
-                return true;
-            } else {
-                alert(INVITATION_MESSAGES.ERROR_DELETE + result.error);
-                return false;
-            }
+            const res = await deleteMutation.mutateAsync(id);
+            return res.success;
         }
         return false;
-    };
-
-    const handleCopy = (code: string) => {
-        navigator.clipboard.writeText(code);
-        setCopiedCode(code);
-        setTimeout(() => setCopiedCode(null), 2000);
     };
 
     const handleWhatsAppShare = async (invitation: IInvitation) => {
@@ -57,9 +54,14 @@ export const useInvitationList = (eventId: string, refreshTrigger: number) => {
 
         // Auto-mark as SENT if it was PENDING
         if (invitation.status === 'PENDING') {
-            await invitationService.updateInvitationStatus(invitation.id!, 'SENT');
-            await loadInvitations();
+            await statusMutation.mutateAsync({ id: invitation.id!, status: 'SENT' });
         }
+    };
+
+    const handleCopy = (code: string) => {
+        navigator.clipboard.writeText(code);
+        setCopiedCode(code);
+        setTimeout(() => setCopiedCode(null), 2000);
     };
 
     const toggleStatus = (status: string) => {
@@ -116,18 +118,9 @@ export const useInvitationList = (eventId: string, refreshTrigger: number) => {
         setTimeout(() => setTableCopied(false), 2000);
     };
 
-    const updateStatus = async (id: string, status: IInvitation['status']) => {
-        const res = await invitationService.updateInvitationStatus(id, status);
-        if (res.success) {
-            await loadInvitations();
-            return true;
-        }
-        return false;
-    };
-
     return {
         invitations,
-        loading,
+        loading: isLoading,
         searchTerm,
         setSearchTerm,
         copiedCode,
@@ -140,7 +133,7 @@ export const useInvitationList = (eventId: string, refreshTrigger: number) => {
         handleWhatsAppShare,
         handleCopyTable,
         toggleStatus,
-        updateStatus,
-        refresh: loadInvitations
+        updateStatus: (id: string, status: IInvitation['status']) => statusMutation.mutateAsync({ id, status }),
+        refresh: () => queryClient.invalidateQueries({ queryKey: ['invitations'] })
     };
 };

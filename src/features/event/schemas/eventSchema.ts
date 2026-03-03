@@ -13,6 +13,7 @@ export const eventSchema = z.object({
     venue: z.string().min(3, 'El lugar debe tener al menos 3 caracteres'),
     location: z.string().min(5, 'La ubicación debe ser más detallada'),
     googleMapsUrl: z.string().url('URL de Google Maps inválida').startsWith('https://', 'Debe ser una URL segura (https)'),
+    videoUrl: z.string().url('URL de video inválida').optional().or(z.literal('')),
 });
 
 export type EventFormData = z.infer<typeof eventSchema>;
