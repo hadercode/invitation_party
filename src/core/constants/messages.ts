@@ -15,7 +15,17 @@ export const INVITATION_MESSAGES = {
     SUCCESS_DELETE: 'Invitado eliminado con éxito',
 
     WHATSAPP_MESSAGE: (recipient: string, inviteUrl: string) =>
-        `¡Hola ${recipient}! 👋%0A%0AEstás cordialmente invitado a nuestro evento especial. 🎉%0A%0APuedes ver tu invitación digital aquí: ${inviteUrl}%0A%0A¡Esperamos contar con tu presencia! ✨`,
+        `🌸 *¡Mis 15 Años!* 🌸
+
+Hay momentos en la vida que son especiales, pero compartirlos con las personas que más queremos los hace inolvidables.
+
+Te espero para celebrar este día tan importante para mí. ✨
+
+📍 Encuentra todos los detalles, y confirma tu asistencia en el siguiente enlace:
+
+🔗 ${inviteUrl}
+
+¡No faltes! Tu presencia es mi mejor regalo. 💖`,
 
     STATUS_LABELS: {
         PENDING: 'Pendiente',

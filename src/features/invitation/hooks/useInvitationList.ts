@@ -50,7 +50,7 @@ export const useInvitationList = (eventId: string, refreshTrigger: number) => {
         const inviteUrl = `${baseUrl}/invitation/${invitation.access_code}`;
         const message = INVITATION_MESSAGES.WHATSAPP_MESSAGE(invitation.recipient, inviteUrl);
 
-        window.open(`https://wa.me/?text=${message}`, '_blank');
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
 
         // Auto-mark as SENT if it was PENDING
         if (invitation.status === 'PENDING') {
